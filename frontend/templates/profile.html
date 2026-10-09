@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Profile · CyberShield{% endblock %}
+{% block heading %}Operator profile{% endblock %}
+{% block subheading %}Your account, as it is attributed in every scan and audit record{% endblock %}
+{% block content %}
+
+{% if message %}<div class="note ok">{{ message }}</div>{% endif %}
+{% if error %}<div class="note danger">{{ error.message }}</div>{% endif %}
+
+{% if not info %}
+  <div class="note warn">
+    <strong>Account not found.</strong>
+    Your session refers to an account that no longer exists. Please sign in again.
+  </div>
+{% else %}
+
+<div class="panel">
+  <h2>Account</h2>
+  <div class="body">
+    <table class="kv">
+      <tr><th>Username</th><td class="mono">{{ info.username }}</td>
+          <th>Role</th><td><span class="badge conf-HIGH">{{ info.role }}</span></td></tr>
+      <tr><th>Email</th><td class="mono">{{ info.email or '—' }}</td>
+          <th>Status</th>
+          <td>{% if info.is_active %}<span class="reach reachable">active</span>
+              {% else %}<span class="badge sev-CRITICAL">disabled</span>{% endif %}</td></tr>
+      <tr><th>Full name</th><td>{{ info.full_name or '—' }}</td>
+          <th></th><td></td></tr>
+      <tr><th>Member since</th>
+          <td class="muted">{{ info.created_at.strftime('%Y-%m-%d %H:%M') if info.created_at else '—' }}</td>
+          <th>Last sign-in</th>
+          <td class="muted">{{ info.last_login_at.strftime('%Y-%m-%d %H:%M') if info.last_login_at else 'this session' }}</td></tr>
+      <tr><th>Active sessions</th><td>{{ session_count }}</td>
+          <th></th><td><a href="/settings">Manage sessions →</a></td></tr>
+    </table>
+    <p class="caveat">
+      The username is permanent: it is the attribution key recorded against every
+      scan, remediation and audit entry, so it cannot be changed without orphaning
+      that history.
+    </p>
+  </div>
+</div>
+
+<div class="grid-2">
+
+  <div class="panel">
+    <h2>Edit profile</h2>
+    <div class="body">
+      <form method="post" action="/profile/edit">
+        <div class="field">
+          <label for="full_name">Full name</label>
+          <input type="text" id="full_name" name="full_name"
+                 value="{{ info.full_name or '' }}" maxlength="128"
+                 autocomplete="name">
+          <div class="help">Shown in the sidebar and on reports. Optional.</div>
+        </div>
+        <button class="primary" type="submit">Save changes</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Change password</h2>
+    <div class="body">
+      <form method="post" action="/profile/password">
+        <div class="field">
+          <label for="current_password">Current password</label>
+          <input type="password" id="current_password" name="current_password"
+                 autocomplete="current-password" required>
+        </div>
+        <div class="field">
+          <label for="new_password">New password</label>
+          <input type="password" id="new_password" name="new_password"
+                 autocomplete="new-password" required>
+          <div class="help">
+            At least 10 characters, combining at least two of: lowercase,
+            uppercase, digits, symbols.
+          </div>
+        </div>
+        <div class="field">
+          <label for="confirm_password">Confirm new password</label>
+          <input type="password" id="confirm_password" name="confirm_password"
+                 autocomplete="new-password" required>
+        </div>
+        <button class="primary" type="submit">Change password</button>
+        <p class="caveat">
+          Changing your password signs out every other session. Your current
+          password is required so a hijacked session cannot lock you out.
+        </p>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+{% endif %}
+
+{% endblock %}

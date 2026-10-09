@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% block title %}Targets · CyberShield{% endblock %}
+{% block heading %}Authorized targets{% endblock %}
+{% block subheading %}Nothing is scanned unless it appears here{% endblock %}
+{% block content %}
+
+<div class="note">
+  <strong>Authorization is explicit and fail-closed.</strong>
+  A target is scanned only if it is listed below. Being reachable, being on the
+  same Wi-Fi network, or appearing in the detected subnets does
+  <strong>not</strong> authorize it. Only private IPv4 addresses and ranges can
+  be added here.
+</div>
+
+{% if message %}<div class="note ok">{{ message }}</div>{% endif %}
+{% if error %}
+  <div class="note danger">
+    <strong>{{ error.title }}</strong> {{ error.message }}
+    {% if error.hint %}<span class="hint">{{ error.hint }}</span>{% endif %}
+    {% if error.technical %}
+      <details class="tech"><summary>Technical detail</summary><pre>{{ error.technical }}</pre></details>
+    {% endif %}
+  </div>
+{% endif %}
+
+<div class="panel">
+  <h2>Authorize a target</h2>
+  <div class="body">
+    <form method="post" action="/targets">
+      <div class="row">
+        <div class="field">
+          <label for="target">Private IPv4 address or CIDR range</label>
+          <input type="text" id="target" name="target" required
+                 placeholder="192.168.1.25  ·  192.168.1.25/32  ·  192.168.1.0/24">
+          <div class="help">
+            A bare address is treated as a single host (/32). The widest range
+            accepted here is /22.
+          </div>
+        </div>
+        <div class="field">
+          <label for="name">Label <span class="faint">(optional)</span></label>
+          <input type="text" id="name" name="name" maxlength="48"
+                 placeholder="friend-laptop">
+          <div class="help">Used in reports and the audit log.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="notes">Notes <span class="faint">(optional)</span></label>
+        <input type="text" id="notes" name="notes" maxlength="240"
+               placeholder="Owner's own laptop, tested with written permission.">
+      </div>
+      <div class="field">
+        <label class="check">
+          <input type="checkbox" name="confirm" value="yes" required>
+          <span>
+            I confirm I own this target or hold written permission to assess it,
+            that it is not a production system, and that I understand scanning
+            without authorization is unlawful in most jurisdictions.
+          </span>
+        </label>
+      </div>
+      <button class="primary" type="submit">Authorize for assessment</button>
+      <p class="caveat" style="margin-top:10px">
+        Targets added here are <strong>assessment-only</strong>: they can be
+        scanned, and firewall remediation is refused on them. Making a target
+        remediable requires editing
+        <code>config/authorized_targets.yaml</code> deliberately, with SSH
+        details, so that a rule can always be rolled back.
+      </p>
+    </form>
+  </div>
+</div>
+
+<div class="panel flush">
+  <h2>Your authorized targets <span class="right">{{ my_targets|length }} entr{{ 'y' if my_targets|length == 1 else 'ies' }}</span></h2>
+  <div class="scroll">
+    {% if my_targets %}
+    <table>
+      <tr><th>Label</th><th>Range</th><th>Permitted</th><th>Added</th><th>Notes</th><th></th></tr>
+      {% for t in my_targets %}
+      <tr>
+        <td>{{ t.name }}</td>
+        <td class="mono">{{ t.cidr }}</td>
+        <td><span class="badge pill-assess" title="Scanning only; firewall changes refused">assess only</span></td>
+        <td class="muted">{{ t.created_at.strftime('%Y-%m-%d %H:%M') if t.created_at else '—' }}</td>
+        <td class="caveat">{{ t.notes or '—' }}</td>
+        <td>
+          <form method="post" action="/targets/{{ t.id }}/remove"
+                onsubmit="return confirm('Remove {{ t.cidr }} from your authorized targets?\n\nScans against it will be refused after this.');">
+            <button type="submit">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <div class="empty">
+      <span class="big">You have not authorized any targets yet</span>
+      Your account starts with an empty scope. Add a private address or subnet you
+      have permission to assess, using the form above, then run a scan.
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if shared_scope %}
+<div class="panel flush">
+  <h2>Shared &amp; laboratory scope <span class="right">install-wide</span></h2>
+  <div class="scroll">
+    <table>
+      <tr><th>Label</th><th>Range</th><th class="num">Addresses</th><th>Permitted</th><th>Management</th><th>Notes</th></tr>
+      {% for t in shared_scope %}
+      <tr>
+        <td>{{ t.name }}</td>
+        <td class="mono">{{ t.cidr }}</td>
+        <td class="num">{{ t.address_count }}</td>
+        <td>
+          {% if t.is_lab %}
+            <span class="badge pill-lab" title="Firewall remediation permitted">scan + remediate</span>
+          {% else %}
+            <span class="badge pill-assess">assess only</span>
+          {% endif %}
+        </td>
+        <td class="mono muted">{% if t.is_lab %}{{ t.ssh_user }}@:{{ t.ssh_port }}{% else %}—{% endif %}</td>
+        <td class="caveat">{{ t.notes }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="body" style="border-top:1px solid var(--line)">
+    <p class="caveat" style="margin:0">
+      This scope is defined in <code>config/authorized_targets.yaml</code> by the
+      installation and is shared by every operator (it holds the laboratory and
+      any administrator-authorized ranges). It is managed by editing that file,
+      not from this page. Laboratory targets are the only ones on which firewall
+      remediation is permitted.
+    </p>
+  </div>
+</div>
+{% endif %}
+
+<div class="panel">
+  <h2>This machine's networks</h2>
+  <div class="body">
+    {% if interfaces %}
+      <table>
+        <tr><th>Interface</th><th>This machine</th><th>Subnet</th><th>Role</th></tr>
+        {% for i in interfaces %}
+        <tr>
+          <td class="mono">{{ i.interface }}</td>
+          <td class="mono">{{ i.address }}</td>
+          <td class="mono">{{ i.cidr }}</td>
+          <td class="caveat">
+            {% if i.is_default_route %}<span class="badge pill-lab">primary</span> {% endif %}
+            {{ i.description }}
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+      <p class="caveat">
+        Detected from the live interface configuration — no subnet is assumed or
+        hardcoded, because every Wi-Fi network is different. A device you want to
+        scan must normally be on the same subnet as one of these.
+      </p>
+    {% else %}
+      <div class="empty">
+        Local interfaces could not be read. Type the target address manually.
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if suggestions %}
+<div class="panel flush">
+  <h2>Candidate ranges — not authorized</h2>
+  <div class="scroll">
+    <table>
+      <tr><th>Range</th><th>Interface</th><th>Scope</th><th>What this would mean</th><th>Status</th></tr>
+      {% for s in suggestions %}
+      <tr>
+        <td class="mono">{{ s.cidr }}</td>
+        <td class="mono muted">{{ s.interface }}</td>
+        <td>{{ s.kind }}</td>
+        <td class="caveat">{{ s.description }}</td>
+        <td>
+          {% if s.already_authorized %}
+            <span class="badge conf-HIGH">already in scope</span>
+          {% else %}
+            <span class="badge conf-LOW">not authorized</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="body" style="border-top:1px solid var(--line)">
+    <p class="caveat" style="margin:0">
+      These are the ranges this machine can see. They are listed to save you
+      looking up an address — <strong>none of them is authorized</strong>, and
+      listing one here has no effect on what can be scanned. Copy the one you
+      have permission to assess into the form above and confirm it.
+    </p>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

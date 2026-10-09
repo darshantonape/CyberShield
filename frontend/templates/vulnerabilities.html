@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}Vulnerabilities · CyberShield{% endblock %}
+{% block heading %}Vulnerabilities{% endblock %}
+{% block subheading %}CVE candidates correlated from detected software{% endblock %}
+{% block content %}
+
+<div class="note">
+  Every row is a <strong>CVE candidate</strong>. A detected version resembling
+  software named in a CVE's applicability data is not proof that this service is
+  vulnerable or exploitable. No exploitation is ever attempted.
+</div>
+
+<div class="note">
+  <strong>These five things are not the same, and are never merged here:</strong>
+  an <em>open port</em> (something accepted a connection) · a <em>service</em>
+  (what Nmap thinks it is) · a <em>software version</em> (what the banner said) ·
+  a <em>CVE</em> (a published record) · a <em>vulnerability</em> (this host
+  actually being exploitable, which nothing in this system establishes).
+</div>
+
+<div class="panel">
+  <h2>Filter</h2>
+  <div class="body">
+    <form method="get" action="/vulnerabilities" class="filters">
+      <div class="row">
+        <div class="field narrow">
+          <label for="severity">Severity</label>
+          <select id="severity" name="severity">
+            <option value="">any</option>
+            {% for s in ['CRITICAL','HIGH','MEDIUM','LOW'] %}
+            <option value="{{ s }}" {{ 'selected' if severity == s }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field narrow">
+          <label for="confidence">Confidence</label>
+          <select id="confidence" name="confidence">
+            <option value="">any</option>
+            {% for c in ['HIGH','MEDIUM','LOW'] %}
+            <option value="{{ c }}" {{ 'selected' if confidence == c }}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field narrow">
+          <label for="cve">CVE</label>
+          <input type="text" id="cve" name="cve" value="{{ cve }}" placeholder="CVE-2021">
+        </div>
+        <div class="field narrow">
+          <label for="host">Host</label>
+          <input type="text" id="host" name="host" value="{{ host }}" list="hostlist"
+                 placeholder="192.168.">
+          <datalist id="hostlist">
+            {% for h in known_hosts %}<option value="{{ h }}">{% endfor %}
+          </datalist>
+        </div>
+        <div class="field narrow">
+          <label for="port">Port</label>
+          <input type="text" id="port" name="port" value="{{ port }}" placeholder="6379">
+        </div>
+        <div class="field narrow">
+          <label for="service">Service</label>
+          <input type="text" id="service" name="service" value="{{ service }}" list="svclist"
+                 placeholder="http">
+          <datalist id="svclist">
+            {% for s in known_services %}<option value="{{ s }}">{% endfor %}
+          </datalist>
+        </div>
+        <div class="field narrow">
+          <label for="status">Review status</label>
+          <select id="status" name="status">
+            <option value="">any</option>
+            {% for st in ['candidate','reviewed_true_positive','reviewed_false_positive'] %}
+            <option value="{{ st }}" {{ 'selected' if status == st }}>{{ st }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field medium">
+          <label for="scope">Scan scope</label>
+          <select id="scope" name="scope">
+            <option value="latest" {{ 'selected' if scope != 'all' }}>latest assessment scan</option>
+            <option value="all" {{ 'selected' if scope == 'all' }}>all recorded scans</option>
+          </select>
+        </div>
+        <div class="field narrow">
+          <label for="hide_fp">Probable FPs</label>
+          <select id="hide_fp" name="hide_fp">
+            <option value="">show</option>
+            <option value="1" {{ 'selected' if hide_fp }}>hide</option>
+          </select>
+        </div>
+        <div class="actions">
+          <button class="primary" type="submit">Apply</button>
+          <a class="btn" href="/vulnerabilities">Reset</a>
+        </div>
+      </div>
+    </form>
+    <p class="caveat">
+      {% if scope == 'all' %}
+        Showing candidates from <strong>every</strong> correlation run ever
+        recorded. The same service correlated twice appears twice, so these
+        totals are a history, not a count of distinct findings.
+      {% elif scoped_session_id %}
+        Scoped to the latest assessment scan
+        (<a class="mono" href="/scans/{{ scoped_session_id }}">{{ scoped_session_id[:12] }}</a>
+        against <span class="mono">{{ scoped_target }}</span>).
+      {% endif %}
+      Showing {{ rows|length }} of {{ total }} candidates{% if matched != total %} ({{ matched }} match the filter){% endif %}.
+      {{ flagged }} are flagged as probable false positives: NVD returned them
+      for the queried CPE, but no vulnerable <code>cpeMatch</code> in the CVE
+      names that vendor and product.
+    </p>
+  </div>
+</div>
+
+<div class="panel flush">
+  <h2>CVE candidates</h2>
+  <div class="scroll tall">
+    {% if rows %}
+    <table>
+      <tr><th>CVE</th><th>Host</th><th>Port</th><th>Service</th><th>Product</th><th>Version</th>
+          <th>Severity</th><th class="num">Score</th><th>CVSS</th>
+          <th>Method</th><th>Confidence</th><th>Status</th><th>Flags</th></tr>
+      {% for v in rows %}
+      <tr>
+        <td class="cve-cell"><a class="mono" href="/vulnerabilities/{{ v.id }}">{{ v.cve_id }}</a></td>
+        <td class="mono">{{ v.host }}</td>
+        <td class="mono">{{ v.proto }}/{{ v.port }}</td>
+        <td>{{ v.service_name or '—' }}</td>
+        <td>{{ v.detected_product or '—' }}</td>
+        <td class="mono">{{ v.detected_version or '—' }}</td>
+        <td><span class="badge sev-{{ v.severity or 'NONE' }}">{{ v.severity or 'unscored' }}</span></td>
+        <td class="num">{{ v.base_score if v.base_score is not none else '—' }}</td>
+        <td class="muted">{{ 'v' ~ v.cvss_version if v.cvss_version else '—' }}</td>
+        <td class="muted">{{ v.matching_method }}</td>
+        <td><span class="badge conf-{{ v.confidence }}">{{ v.confidence }}</span></td>
+        <td class="muted">{{ v.status }}</td>
+        <td>
+          {% if v.probable_false_positive %}
+            <span class="badge pill-fp" title="No vulnerable cpeMatch names this vendor:product">probable FP</span>
+          {% endif %}
+          {% if v.matching_method == 'keyword' %}
+            <span class="badge conf-LOW" title="Keyword search under-reports badly">keyword</span>
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td colspan="12" class="caveat" style="padding-top:0">
+          <strong>Recommended:</strong> {{ v.advice }}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <div class="empty">
+      <span class="big">No CVE candidates match</span>
+      No CVE candidates match. This is not evidence that the services are free
+      of vulnerabilities — it means nothing in the correlated data matched these
+      filters.
+      <div class="cta"><a class="btn" href="/scans">Run a scan and correlate it →</a></div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

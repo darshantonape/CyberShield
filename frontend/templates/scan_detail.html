@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}Scan {{ scan.session_id[:12] if scan else 'not found' }} · CyberShield{% endblock %}
+{% block heading %}Scan result{% endblock %}
+{% block subheading %}{{ scan.target_spec if scan else 'Unknown session' }}{% endblock %}
+{% block content %}
+
+<p class="muted" style="margin-top:0"><a href="/scans">&larr; All scans</a></p>
+
+{% if not scan %}
+  <div class="note warn">
+    <strong>No scan with that session id.</strong>
+    It may have been removed, or the database reset. Nothing is inferred about
+    the target from its absence.
+  </div>
+{% else %}
+
+{% if scan.status == 'failed' %}
+  <div class="note danger">
+    <strong>This scan failed and produced no results.</strong>
+    No host, service or vulnerability was recorded. Nothing is known about this
+    target — this is not a clean result.
+    {% if scan.error %}
+      <details class="tech" open><summary>Recorded error</summary><pre>{{ scan.error }}</pre></details>
+    {% endif %}
+  </div>
+{% elif scan.status == 'completed_unreachable' %}
+  <div class="note warn">
+    <strong>Target is authorized but unreachable.</strong>
+    {{ scan.reachability_note }}
+    <span class="hint">
+      The scan itself ran correctly. Because nothing answered, no conclusion can
+      be drawn about this target's exposed services or its vulnerabilities.
+    </span>
+  </div>
+{% elif scan.status == 'completed_with_timeouts' %}
+  <div class="note warn">
+    <strong>Results are truncated.</strong>
+    One or more hosts hit the per-host timeout, or Nmap's output was cut off and
+    had to be repaired. An absent port here does <strong>not</strong> mean it
+    was closed. Re-run with a longer <code>--host-timeout</code> before drawing
+    conclusions.
+  </div>
+{% endif %}
+
+<div class="panel">
+  <h2>Session {{ scan.session_id }}</h2>
+  <div class="body">
+    <table class="kv">
+      <tr><th>Target</th><td class="mono">{{ scan.target_spec }}</td>
+          <th>Profile</th><td>{{ scan.profile }}</td></tr>
+      <tr><th>Kind</th><td>{{ scan.scan_kind }}</td>
+          <th>Status</th>
+          <td>
+            {% if scan.status == 'completed' %}<span class="badge conf-HIGH">completed</span>
+            {% elif scan.status == 'completed_unreachable' %}<span class="badge sev-MEDIUM">unreachable</span>
+            {% elif scan.status == 'completed_with_timeouts' %}<span class="badge sev-MEDIUM">partial</span>
+            {% else %}<span class="badge sev-CRITICAL">{{ scan.status }}</span>{% endif %}
+          </td></tr>
+      <tr><th>Reachability</th>
+          <td>
+            <span class="reach {{ scan.reachability or 'unknown' }}">{{ (scan.reachability or 'unknown')|upper }}</span>
+          </td>
+          <th>Authorization</th>
+          <td><span class="reach reachable">AUTHORIZED</span>
+              <span class="caveat">checked before Nmap ran</span></td></tr>
+      <tr><th>Hosts up</th><td>{{ scan.hosts_up if scan.hosts_up is not none else '—' }}</td>
+          <th>Open services</th><td>{{ scan.open_services if scan.open_services is not none else '—' }}</td></tr>
+      <tr><th>Duration</th><td>{{ '%.2f'|format(scan.duration_seconds or 0) }}s</td>
+          <th>Nmap</th><td>{{ scan.nmap_version or '—' }}</td></tr>
+      <tr><th>Config hash</th><td class="mono">{{ scan.config_hash or '—' }}</td>
+          <th>Operator</th><td>{{ scan.initiated_by or '—' }}</td></tr>
+      <tr><th>Started</th><td colspan="3" class="muted">{{ scan.started_at }}</td></tr>
+    </table>
+
+    {% if scan.reachability_note %}
+      <p class="caveat" style="margin-top:12px">{{ scan.reachability_note }}</p>
+    {% endif %}
+    {% if scan.nmap_argv %}
+    <p class="caveat">Command: <code>{{ scan.nmap_argv | join(' ') }}</code></p>
+    {% endif %}
+    {% if scan.raw_xml_path %}
+    <p class="caveat">Raw evidence: <code>{{ scan.raw_xml_path }}</code></p>
+    {% endif %}
+
+    {% if scan.scan_kind == 'assessment' and scan.status != 'failed' %}
+    <form method="post" action="/scans/{{ scan.session_id }}/correlate" style="margin-top:14px">
+      <button class="primary" type="submit">Correlate against NVD</button>
+      <a class="btn" href="/reports/{{ scan.session_id }}">Generate report</a>
+      <span class="caveat">
+        Correlate queries NVD for each open service with a detected product and
+        records CVE candidates (requires internet access). Generate report
+        assembles the full assessment report (HTML and PDF).
+      </span>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+{% for host in hosts %}
+<div class="panel flush">
+  <h2>
+    <span class="mono">{{ host.address }}</span>
+    {% if host.hostname %}<span class="right muted">{{ host.hostname }}</span>{% endif %}
+    <span class="badge {{ 'conf-HIGH' if host.state == 'up' else 'conf-LOW' }}">{{ host.state }}</span>
+  </h2>
+  <div class="scroll">
+    {% if host.services %}
+    <table>
+      <tr><th>Port</th><th>State</th><th>Service</th><th>Product</th><th>Version</th>
+          <th>Version conf.</th><th>Identification</th><th class="num">Nmap conf.</th><th>Policy</th></tr>
+      {% for s in host.services %}
+      <tr>
+        <td class="mono">{{ s.proto }}/{{ s.port }}</td>
+        <td class="state-{{ s.state }}">{{ s.state }}</td>
+        <td>{{ s.service_name or '—' }}</td>
+        <td>{{ s.product or '—' }}</td>
+        <td class="mono">{{ s.version or '—' }}</td>
+        <td>
+          {% if s.version_confidence == 'known' %}<span class="badge conf-HIGH">known</span>
+          {% else %}<span class="badge conf-LOW">unknown</span>{% endif %}
+        </td>
+        <td class="muted">{{ s.identification_status }}</td>
+        <td class="num">{{ s.nmap_confidence if s.nmap_confidence is not none else '—' }}</td>
+        <td>
+          {% set pol = policies.get((s.port, s.proto)) %}
+          {% if pol == 'protected' %}<span class="badge pill-protected">protected</span>
+          {% elif pol == 'eligible_for_isolation' %}<span class="badge sev-MEDIUM">eligible</span>
+          {% elif pol %}<span class="badge conf-LOW">{{ pol }}</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <div class="empty">
+      <span class="big">No ports recorded for this host</span>
+      {% if scan.scan_kind == 'discovery' %}
+        Host discovery does not scan ports. Run a service-detection scan to see
+        what this host exposes.
+      {% else %}
+        Every probed port was filtered or closed. That is not the same as the
+        host having no vulnerabilities.
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% else %}
+<div class="panel">
+  <div class="empty">
+    <span class="big">No hosts recorded in this scan</span>
+    {% if scan.status == 'completed_unreachable' %}
+      The target did not answer any probe, so no host could be recorded.
+    {% elif scan.status == 'failed' %}
+      The scan failed before any result could be read.
+    {% else %}
+      Nothing in the scanned range responded.
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+
+<div class="note">
+  <strong>Reading these results.</strong>
+  <ul>
+    <li><em>Version unknown</em> means Nmap reported no version — not that the
+        service is safe. Such services are <em>undetermined</em>, never clean.</li>
+    <li>Nmap confidence below 7 means a weak service match; correlation
+        confidence is capped accordingly.</li>
+    <li>An absent port means it was not found by the profile's port set, which
+        is an explicit list — not proof that nothing is listening there.</li>
+    <li>An open port is not a vulnerability. A detected product and version is
+        not a vulnerability either. Only a CVE correlation produces a candidate,
+        and a candidate still requires human review.</li>
+  </ul>
+</div>
+
+{% endif %}
+
+{% endblock %}

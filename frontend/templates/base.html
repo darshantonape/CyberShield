@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block title %}CyberShield{% endblock %}</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  {# Resolve the theme BEFORE first paint, so the page never flashes the wrong
+     one. Deliberately inline and tiny; the rest of the behaviour lives in
+     /static/theme.js. Falls back to dark if storage is unavailable. #}
+  <script>
+    (function () {
+      try {
+        var p = localStorage.getItem("cybershield-theme") || "system";
+        var t = (p === "light" || p === "dark") ? p
+              : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+        document.documentElement.setAttribute("data-theme", t);
+        document.documentElement.setAttribute("data-theme-pref", p);
+      } catch (e) { document.documentElement.setAttribute("data-theme", "dark"); }
+    })();
+  </script>
+  {# No CDN and no vendored JS framework: plain forms, an inline SVG icon set
+     and a few lines of script keep the console dependency-free and offline. #}
+  {# ?v= is a cache buster, and it is not cosmetic. The redesign changed the
+     markup and the stylesheet together: a browser that still held the PREVIOUS
+     style.css rendered the new HTML against rules that no longer matched it,
+     which produced 300x150px icons, a theme control 582px tall and a dashboard
+     pushed off the bottom of the page. Bump this string whenever style.css or
+     theme.js changes so the two can never be served out of step. #}
+  <link rel="stylesheet" href="/static/style.css?v=20260926a">
+</head>
+<body>
+
+{# ----------------------------------------------------------------------
+   Icon set. Inline symbols rather than an icon font or a CDN library, so the
+   console still renders with no network at all. Stroke-style, 24x24 grid.
+   Every icon is decorative: each is paired with a visible text label, and
+   carries aria-hidden so it is not announced twice.
+   ---------------------------------------------------------------------- #}
+<svg width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false">
+  <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/>
+    <rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>
+  </symbol>
+  <symbol id="i-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>
+  </symbol>
+  <symbol id="i-scan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 8V5.5A2.5 2.5 0 0 1 5.5 3H8M16 3h2.5A2.5 2.5 0 0 1 21 5.5V8M21 16v2.5a2.5 2.5 0 0 1-2.5 2.5H16M8 21H5.5A2.5 2.5 0 0 1 3 18.5V16"/>
+    <path d="M3 12h18"/>
+  </symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10.3 3.9 1.9 18a2 2 0 0 0 1.7 3h16.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>
+    <path d="M12 9v4"/><path d="M12 17h.01"/>
+  </symbol>
+  <symbol id="i-report" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/>
+    <path d="M8 13h8M8 17h5"/>
+  </symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/>
+  </symbol>
+  <symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 9.3-9.3"/><path d="m17 5 3 3"/><path d="m14 8 3 3"/>
+  </symbol>
+  <symbol id="i-audit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/>
+  </symbol>
+  <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+  </symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
+    <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
+    <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
+    <line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>
+  </symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
+  </symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 6h18M3 12h18M3 18h18"/>
+  </symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="4"/>
+    <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+  </symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>
+  </symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+  </symbol>
+  <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/>
+  </symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+  </symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>
+  </symbol>
+  <symbol id="i-host" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2" y="4" width="20" height="7" rx="2"/><rect x="2" y="13" width="20" height="7" rx="2"/>
+    <path d="M6 7.5h.01M6 16.5h.01"/>
+  </symbol>
+  <symbol id="i-service" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m8 6-6 6 6 6M16 6l6 6-6 6"/>
+  </symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V4s-1 1-4 1-5-2-8-2-4 1-4 1Z"/><path d="M4 22v-7"/>
+  </symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 3v18h18"/><path d="m7 15 4-5 4 3 5-7"/>
+  </symbol>
+</svg>
+
+<div class="shell">
+
+  <button type="button" class="nav-scrim" id="nav-scrim" aria-label="Close navigation" tabindex="-1"></button>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <img src="/static/logo.svg" alt="">
+      <div>
+        <div class="name">CyberShield</div>
+        <div class="tag">Security console</div>
+      </div>
+    </div>
+
+    <nav class="side-nav" aria-label="Primary">
+      <div class="group">Assess</div>
+      <a href="/" class="{{ 'active' if page == 'dashboard' }}" {% if page == 'dashboard' %}aria-current="page"{% endif %}>
+        <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-dashboard"/></svg> Dashboard
+      </a>
+      <a href="/targets" class="{{ 'active' if page == 'targets' }}" {% if page == 'targets' %}aria-current="page"{% endif %}>
+        <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-target"/></svg> Targets
+        {# The operator's OWN authorized targets, not the shared config scope:
+           a new account has none and must not be shown someone else's count. #}
+        {% if my_target_count %}<span class="count">{{ my_target_count }}</span>{% endif %}
+      </a>
+      <a href="/scans" class="{{ 'active' if page == 'scans' }}" {% if page == 'scans' %}aria-current="page"{% endif %}>
+        <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-scan"/></svg> Scans
+      </a>
+      <a href="/vulnerabilities" class="{{ 'active' if page == 'vulns' }}" {% if page == 'vulns' %}aria-current="page"{% endif %}>
+        <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-alert"/></svg> Vulnerabilities
+      </a>
+      <a href="/reports" class="{{ 'active' if page == 'reports' }}" {% if page == 'reports' %}aria-current="page"{% endif %}>
+        <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-report"/></svg> Reports
+      </a>
+
+      <div class="group">Respond</div>
+      <a href="/remediation" class="{{ 'active' if page == 'remediation' }}" {% if page == 'remediation' %}aria-current="page"{% endif %}>
+        <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-shield"/></svg> Remediation
+      </a>
+      <a href="/ssh" class="{{ 'active' if page == 'ssh' }}" {% if page == 'ssh' %}aria-current="page"{% endif %}>
+        <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-key"/></svg> SSH channel
+      </a>
+      <a href="/audit" class="{{ 'active' if page == 'audit' }}" {% if page == 'audit' %}aria-current="page"{% endif %}>
+        <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-audit"/></svg> Audit log
+      </a>
+
+      {% if user %}
+      <div class="group">Account</div>
+      <a href="/profile" class="{{ 'active' if page == 'profile' }}" {% if page == 'profile' %}aria-current="page"{% endif %}>
+        <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-user"/></svg> Profile
+      </a>
+      <a href="/settings" class="{{ 'active' if page == 'settings' }}" {% if page == 'settings' %}aria-current="page"{% endif %}>
+        <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-settings"/></svg> Settings
+      </a>
+      {% endif %}
+    </nav>
+
+    <div class="side-foot">
+      {% if user %}
+        <div>
+          <a class="who" href="/profile">{{ user.full_name or user.username }}</a>
+          <div>signed in as {{ user.username }}</div>
+        </div>
+        <form method="post" action="/logout">
+          <button type="submit" class="subtle wide signout">
+            <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-logout"/></svg> Sign out
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </aside>
+
+  <div class="content">
+    <header class="topbar">
+      <button type="button" class="nav-toggle" id="nav-toggle"
+              aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">
+        <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
+
+      <div class="titles">
+        <h1>{% block heading %}CyberShield{% endblock %}</h1>
+        <div class="sub">{% block subheading %}Vulnerability assessment &amp; controlled exposure reduction{% endblock %}</div>
+      </div>
+
+      <div class="spacer"></div>
+
+      {% if user %}
+      {# A real filter, not a decorative search box: this submits to the
+         existing /vulnerabilities CVE filter across all stored scans. #}
+      <form class="topsearch" method="get" action="/vulnerabilities" role="search">
+        <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-search"/></svg>
+        <label class="visually-hidden" for="cve-search">Search CVE candidates</label>
+        <input type="search" id="cve-search" name="cve" placeholder="Search CVE…" autocomplete="off">
+        <input type="hidden" name="scope" value="all">
+      </form>
+
+      <div class="clock" id="clock" aria-hidden="true"></div>
+      {% endif %}
+
+      <div class="theme-switch" role="radiogroup" aria-label="Colour theme">
+        <input type="radio" name="theme-pref" id="theme-light" value="light">
+        <label for="theme-light" title="Light theme">
+          <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-sun"/></svg><span class="visually-hidden">Light</span>
+        </label>
+        <input type="radio" name="theme-pref" id="theme-dark" value="dark">
+        <label for="theme-dark" title="Dark theme">
+          <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-moon"/></svg><span class="visually-hidden">Dark</span>
+        </label>
+        <input type="radio" name="theme-pref" id="theme-system" value="system" checked>
+        <label for="theme-system" title="Follow system setting">
+          <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-monitor"/></svg><span class="visually-hidden">System</span>
+        </label>
+      </div>
+
+      {% if user %}
+      <a class="userchip" href="/profile">
+        <span class="avatar" aria-hidden="true">{{ (user.full_name or user.username)[:2] | upper }}</span>
+        <span class="meta">
+          <span class="nm">{{ user.full_name or user.username }}</span>
+          <span class="rl">{{ user.role }}</span>
+        </span>
+      </a>
+      {% endif %}
+    </header>
+
+    {# The operator must be able to tell at a glance whether live enforcement is
+       armed and whether the tool is authorised to act at all. #}
+    {% if not safety.authorization_signed %}
+      <div class="banner unsigned" role="status">
+        <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-alert"/></svg>
+        <span class="tick">NOT AUTHORIZED</span>
+        <span>AUTHORIZATION.md is not signed — every scan and remediation will be refused.</span>
+      </div>
+    {% elif safety.live_remediation_enabled %}
+      <div class="banner live" role="status">
+        <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-alert"/></svg>
+        <span class="tick">LIVE ENFORCEMENT ARMED</span>
+        <span>
+          Backend <code>{{ safety.remediation_backend }}</code> — confirmed actions will
+          apply real firewall rules to authorized lab targets. Rules auto-revert after
+          {{ safety.remediation_ttl_minutes }} minutes.
+        </span>
+      </div>
+    {% else %}
+      <div class="banner lab" role="status">
+        <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-lock"/></svg>
+        <span class="tick">DRY-RUN MODE</span>
+        <span>
+          Dry-run mode — no firewall rule can be applied. Authorized scope:
+          {% for t in safety.authorized_targets %}<code>{{ t.range }}</code>{% if not loop.last %} {% endif %}{% else %}<em>none configured</em>{% endfor %}
+          · Protected ports:
+          {% for p in safety.protected_ports %}<code>{{ p.proto }}/{{ p.port }}</code>{% if not loop.last %} {% endif %}{% endfor %}
+        </span>
+      </div>
+    {% endif %}
+
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="foot">
+      Authorized laboratory use only · CVE matches are candidates requiring review ·
+      Isolation reduces network exposure and does not patch software
+    </footer>
+  </div>
+
+</div>
+<script src="/static/theme.js?v=20260920b"></script>
+</body>
+</html>

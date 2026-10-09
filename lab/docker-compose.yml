@@ -1,0 +1,115 @@
+# CyberShield laboratory targets — AUTHORIZED TEST ENVIRONMENT ONLY
+#
+# These containers run deliberately outdated and deliberately exposed services.
+# They exist to be scanned and to have firewall rules applied to them.
+#
+#   * Never run this on a network you do not control.
+#   * Never publish these ports beyond the isolated lab network below.
+#
+# Topology: an isolated bridge network with static addresses, so host discovery
+# is genuinely exercised (four distinct hosts) rather than simulated on one IP.
+#
+# Each target is published on its OWN IP alias of the Colima VM interface
+# (192.168.64.11-.14, added by scripts/lab_network.sh). macOS already routes to
+# 192.168.64.0/24 to reach the VM, so the aliases are reachable with no host
+# route and no sudo on the Mac. Aliases share the interface's MAC, which is why
+# this works where a macvlan network does not — vmnet refuses additional MACs.
+#
+# Because each target keeps its own address, SSH stays on port 22 everywhere
+# and the protected-port and anti-lockout guards apply unchanged.
+#
+# The internal bridge addresses (172.30.0.x) are NOT reachable from the Mac, so
+# the scanner has exactly one path to each service. That matters for
+# verification: a second path could leave a service reachable after its
+# container-side rule was applied, making a failed isolation look successful.
+#
+# Every target additionally runs sshd on 22 as CyberShield's management
+# channel. That port is protected and can never be isolated.
+
+name: cybershield-lab
+
+networks:
+  cybershield_lab:
+    name: cybershield_lab
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+          gateway: 172.30.0.1
+
+x-target-common: &target-common
+  restart: unless-stopped
+  # nftables inside the container requires NET_ADMIN. Scoped to this capability
+  # only — the containers are not privileged.
+  cap_add:
+    - NET_ADMIN
+    - NET_RAW
+  labels:
+    cybershield.role: "laboratory-target"
+    cybershield.authorized: "true"
+
+services:
+
+  lab-web:
+    <<: *target-common
+    build:
+      context: .
+      dockerfile: targets/web/Dockerfile
+    image: cybershield/lab-web:apache-2.4.49
+    container_name: cybershield-lab-web
+    hostname: lab-web
+    ports:
+      - "192.168.64.11:8080:8080"
+      - "192.168.64.11:2222:22"
+    networks:
+      cybershield_lab:
+        ipv4_address: 172.30.0.11
+
+  lab-ftp:
+    <<: *target-common
+    build:
+      context: .
+      dockerfile: targets/ftp/Dockerfile
+    image: cybershield/lab-ftp:vsftpd
+    container_name: cybershield-lab-ftp
+    hostname: lab-ftp
+    ports:
+      - "192.168.64.12:21:21"
+      - "192.168.64.12:2222:22"
+    networks:
+      cybershield_lab:
+        ipv4_address: 172.30.0.12
+
+  lab-cache:
+    <<: *target-common
+    build:
+      context: .
+      dockerfile: targets/cache/Dockerfile
+    image: cybershield/lab-cache:redis-5.0
+    container_name: cybershield-lab-cache
+    hostname: lab-cache
+    ports:
+      - "192.168.64.13:6379:6379"
+      - "192.168.64.13:2222:22"
+    networks:
+      cybershield_lab:
+        ipv4_address: 172.30.0.13
+
+  lab-db:
+    <<: *target-common
+    build:
+      context: .
+      dockerfile: targets/db/Dockerfile
+    image: cybershield/lab-db:mariadb-10.5
+    container_name: cybershield-lab-db
+    hostname: lab-db
+    environment:
+      # Lab only. The database holds no data and is never exposed beyond the
+      # isolated network above.
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
+    ports:
+      - "192.168.64.14:3306:3306"
+      - "192.168.64.14:2222:22"
+    networks:
+      cybershield_lab:
+        ipv4_address: 172.30.0.14

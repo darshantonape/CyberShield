@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+{% block title %}Action {{ action.request_id[:10] if action else 'not found' }} · CyberShield{% endblock %}
+{% block heading %}Remediation result{% endblock %}
+{% block subheading %}{% if action %}{{ action.target }} tcp/{{ action.port }}{% else %}Unknown request{% endif %}{% endblock %}
+{% block content %}
+
+<p class="muted" style="margin-top:0"><a href="/remediation">&larr; Remediation</a></p>
+
+{% if not action %}
+  <div class="note warn">
+    <strong>No remediation action with that request id.</strong>
+    Nothing is inferred about the target from its absence.
+  </div>
+{% else %}
+
+{# ---- Headline outcome, stated without overclaiming ---- #}
+{% if action.error %}
+  <div class="note danger">
+    <strong>This action failed.</strong>
+    <details class="tech" open><summary>Recorded error</summary><pre>{{ action.error }}</pre></details>
+  </div>
+{% elif action.is_dry_run %}
+  <div class="note">
+    <strong>Dry run — nothing was sent to the target.</strong>
+    The commands below were rendered and recorded, and the pre-action
+    observation was taken, but no firewall state was changed and no exposure was
+    reduced.
+  </div>
+{% elif action.state == 'rolled_back' %}
+  <div class="note ok">
+    <strong>Applied, verified, and rolled back.</strong>
+    tcp/{{ action.port }} on {{ action.target }} was isolated, the change was
+    confirmed by rescanning, and the rule has been removed. The port's
+    reachability has returned to its previous state.
+  </div>
+{% elif action.exposure_reduced %}
+  <div class="note ok">
+    <strong>Exposure reduced — this is not a patch.</strong>
+    tcp/{{ action.port }} on {{ action.target }} is no longer reachable from
+    this scanner. The service is still running, its software is unchanged, and
+    every CVE candidate against it remains equally present.
+  </div>
+{% elif action.state == 'applied' %}
+  <div class="note warn">
+    <strong>Rule applied, but reduced exposure was not confirmed.</strong>
+    The command was accepted by the target and the rescan still saw the port as
+    reachable. Do not rely on this isolation until it is understood.
+  </div>
+{% endif %}
+
+{% if action.management_channel_intact is false %}
+  <div class="note danger">
+    <strong>MANAGEMENT CHANNEL LOST.</strong>
+    The SSH port used to reach this target did not answer after the action. Roll
+    back immediately — without the management channel the rule cannot be removed
+    remotely.
+  </div>
+{% endif %}
+
+<div class="panel">
+  <h2>Action {{ action.request_id }}</h2>
+  <div class="body">
+    <table class="kv">
+      <tr><th>Target</th><td class="mono">{{ action.target }}</td>
+          <th>Port</th><td class="mono">{{ action.proto }}/{{ action.port }}</td></tr>
+      <tr><th>State</th>
+          <td>
+            {% if action.state == 'applied' %}<span class="badge sev-HIGH">applied</span>
+            {% elif action.state == 'rolled_back' %}<span class="badge conf-HIGH">rolled back</span>
+            {% elif action.state == 'failed' %}<span class="badge sev-CRITICAL">failed</span>
+            {% else %}<span class="badge conf-LOW">{{ action.state }}</span>{% endif %}
+          </td>
+          <th>Backend</th>
+          <td>{{ action.backend }}
+            {% if action.is_dry_run %}<span class="badge conf-LOW">no-op</span>{% endif %}
+          </td></tr>
+      <tr><th>Operator</th><td>{{ action.operator }}</td>
+          <th>Rule tag</th><td class="mono">{{ action.rule_tag }}</td></tr>
+      <tr><th>Planned</th><td class="muted">{{ action.planned_at }}</td>
+          <th>Applied</th><td class="muted">{{ action.applied_at or '—' }}</td></tr>
+      <tr><th>Rolled back</th><td class="muted">{{ action.rolled_back_at or '—' }}</td>
+          <th>Auto-revert</th><td class="muted">{{ action.expires_at or '—' }}</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Commands</h2>
+  <div class="body">
+    <table class="kv">
+      <tr><th>Apply</th><td><code>{{ action.apply_argv | join(' ') }}</code></td></tr>
+      <tr><th>Rollback</th><td><code>{{ action.rollback_argv | join(' ') }}</code></td></tr>
+    </table>
+    <p class="caveat">
+      Both were stored before the apply was sent. Commands are executed as argv
+      arrays over SSH — never as a shell string.
+    </p>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Verification evidence</h2>
+  <div class="body">
+    <table>
+      <tr><th>Observation</th><th>Port state</th><th>Means</th></tr>
+      <tr>
+        <td>Before the action</td>
+        <td class="state-{{ (action.before_state or {}).get('state','') }}">
+          {{ (action.before_state or {}).get('state', '—') }}
+        </td>
+        <td class="caveat">Baseline, taken by rescanning the single port.</td>
+      </tr>
+      <tr>
+        <td>After the action</td>
+        <td class="state-{{ (action.after_state or {}).get('state','') }}">
+          {{ (action.after_state or {}).get('state', '—') }}
+        </td>
+        <td class="caveat">
+          {% if action.is_dry_run %}
+            Not taken — nothing was applied.
+          {% else %}
+            <code>filtered</code> means the probe got no answer; the port is no
+            longer reachable from here.
+          {% endif %}
+        </td>
+      </tr>
+      {% if action.rollback_state %}
+      <tr>
+        <td>After rollback</td>
+        <td class="state-{{ (action.rollback_state or {}).get('state','') }}">
+          {{ (action.rollback_state or {}).get('state', '—') }}
+        </td>
+        <td class="caveat">Reachability restored to the pre-action state.</td>
+      </tr>
+      {% endif %}
+    </table>
+
+    <table class="kv" style="margin-top:14px">
+      <tr><th>Exposure reduced</th>
+          <td>{% if action.exposure_reduced %}<span class="badge conf-HIGH">yes</span>
+              {% elif action.exposure_reduced is not none %}<span class="badge sev-CRITICAL">no</span>
+              {% else %}<span class="badge conf-LOW">not applicable</span>{% endif %}</td></tr>
+      <tr><th>Management channel</th>
+          <td>{% if action.management_channel_intact %}<span class="badge conf-HIGH">intact</span>
+              {% elif action.management_channel_intact is not none %}<span class="badge sev-CRITICAL">LOST</span>
+              {% else %}<span class="badge conf-LOW">not checked</span>{% endif %}</td></tr>
+      <tr><th>Rollback verified</th>
+          <td>{% if action.rollback_verified %}<span class="badge conf-HIGH">verified</span>
+              {% elif action.rollback_verified is not none %}<span class="badge sev-CRITICAL">failed</span>
+              {% else %}<span class="badge conf-LOW">not rolled back</span>{% endif %}</td></tr>
+    </table>
+
+    <p class="caveat">
+      "Exposure reduced" means this port's reachability changed <em>from this
+      scanner's vantage point</em>. It does not establish that the service is
+      unreachable from everywhere, and it does not patch, fix or remove
+      anything.
+    </p>
+
+    {% if action.state == 'applied' %}
+    <form method="post" action="/remediation/{{ action.request_id }}/rollback"
+          style="margin-top:14px"
+          onsubmit="return confirm('Roll back the isolation of {{ action.proto }}/{{ action.port }} on {{ action.target }}?');">
+      <button class="danger" type="submit">Roll back now</button>
+      <span class="caveat">
+        Runs the stored rollback command and rescans to confirm. Happens
+        automatically at the TTL above if left applied.
+      </span>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+{% if verification_scans %}
+<div class="panel flush">
+  <h2>Verification rescans</h2>
+  <div class="scroll">
+    <table>
+      <tr><th>Session</th><th>Kind</th><th>Status</th><th class="num">Open ports seen</th><th>Started</th></tr>
+      {% for s in verification_scans %}
+      <tr>
+        <td><a class="mono" href="/scans/{{ s.session_id }}">{{ s.session_id[:12] }}</a></td>
+        <td>{{ s.scan_kind }}</td>
+        <td class="muted">{{ s.status }}</td>
+        <td class="num">{{ s.open_services if s.open_services is not none else '—' }}</td>
+        <td class="muted">{{ s.started_at.strftime('%Y-%m-%d %H:%M:%S') if s.started_at }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="body" style="border-top:1px solid var(--line)">
+    <p class="caveat" style="margin:0">
+      Each observation is a real Nmap run recorded as its own scan session, with
+      its raw XML retained. Open a session to see the exact command.
+    </p>
+  </div>
+</div>
+{% endif %}
+
+{% if events %}
+<div class="panel flush">
+  <h2>Audit trail for this action</h2>
+  <div class="scroll">
+    <table>
+      <tr><th class="num">#</th><th>Time (UTC)</th><th>Event</th><th>Outcome</th><th>Operator</th><th>Detail</th></tr>
+      {% for e in events %}
+      <tr>
+        <td class="num mono">{{ e.sequence }}</td>
+        <td class="mono muted">{{ e.timestamp[:19].replace('T', ' ') }}</td>
+        <td class="mono">{{ e.action }}</td>
+        <td>
+          {% if e.outcome == 'success' %}<span class="badge conf-HIGH">success</span>
+          {% elif e.outcome == 'refused' %}<span class="badge verdict-DENY">refused</span>
+          {% elif e.outcome == 'failure' %}<span class="badge sev-CRITICAL">failure</span>
+          {% else %}<span class="badge conf-LOW">{{ e.outcome }}</span>{% endif %}
+        </td>
+        <td class="muted">{{ e.actor }}</td>
+        <td class="caveat">{{ e.summary_text }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="body" style="border-top:1px solid var(--line)">
+    <p class="caveat" style="margin:0">
+      These entries are part of the hash-chained log; see
+      <a href="/audit">Audit log</a> for chain verification.
+    </p>
+  </div>
+</div>
+{% endif %}
+
+{% endif %}
+
+{% endblock %}

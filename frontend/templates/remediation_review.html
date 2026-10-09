@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}Review isolation · CyberShield{% endblock %}
+{% block heading %}Review remediation action{% endblock %}
+{% block subheading %}Nothing has been sent to the target{% endblock %}
+{% block content %}
+
+<p class="muted" style="margin-top:0"><a href="/remediation">&larr; Remediation</a></p>
+
+{% if error %}
+  <div class="note danger">
+    <strong>{{ error.title }}</strong> {{ error.message }}
+    {% if error.hint %}<span class="hint">{{ error.hint }}</span>{% endif %}
+    {% if error.technical %}
+      <details class="tech"><summary>Technical detail</summary><pre>{{ error.technical }}</pre></details>
+    {% endif %}
+  </div>
+{% endif %}
+
+{% if candidate %}
+
+<div class="note">
+  <strong>This page is read-only.</strong> The decision chain below has been
+  evaluated and the exact commands rendered, but nothing has been written to the
+  database and no packet has been sent to the target. The plan is rebuilt from
+  scratch when you approve, so a policy or scope change made in the meantime is
+  caught at execution time rather than trusted from this page.
+</div>
+
+<div class="panel">
+  <h2>Candidate</h2>
+  <div class="body">
+    <table class="kv">
+      <tr><th>Host</th><td class="mono">{{ candidate.host }}</td>
+          <th>Port</th><td class="mono">{{ candidate.proto }}/{{ candidate.port }}</td></tr>
+      <tr><th>Service</th><td>{{ candidate.service_name or '—' }}</td>
+          <th>Software</th>
+          <td>{{ candidate.product or '—' }}
+              <span class="mono">{{ candidate.version or '' }}</span></td></tr>
+      <tr><th>CVE candidates</th><td>{{ candidate.cve_count }}</td>
+          <th>Max severity</th>
+          <td><span class="badge sev-{{ candidate.max_severity or 'NONE' }}">{{ candidate.max_severity or 'unscored' }}</span></td></tr>
+      <tr><th>Max confidence</th>
+          <td><span class="badge conf-{{ candidate.max_confidence or 'LOW' }}">{{ candidate.max_confidence or 'none' }}</span></td>
+          <th>From scan</th>
+          <td><a class="mono" href="/scans/{{ candidate.session_id }}">{{ candidate.session_id[:12] }}</a></td></tr>
+    </table>
+  </div>
+</div>
+
+{% if decision %}
+<div class="panel">
+  <h2>Safety decision</h2>
+  <div class="body">
+    <p style="margin-top:0">
+      Verdict:
+      <span class="badge verdict-{{ decision.verdict }}">{{ decision.verdict }}</span>
+      {% if decision.verdict == 'ALLOW' %}
+        <span class="caveat">all {{ decision.rules | length }} safety rules passed</span>
+      {% endif %}
+    </p>
+
+    {% if decision.verdict != 'ALLOW' %}
+      <div class="note {{ 'danger' if decision.verdict == 'DENY' else 'warn' }}">
+        <strong>
+          {% if decision.verdict == 'DENY' %}
+            This action is refused and cannot be approved.
+          {% else %}
+            This action requires a policy decision before it can be approved.
+          {% endif %}
+        </strong>
+        {{ decision.blocking_reason }}
+        <span class="hint">
+          {% if decision.verdict == 'DENY' %}
+            There is no <code>force</code> parameter, API field or UI control
+            that overrides a DENY. The rule that blocked it is marked below.
+          {% else %}
+            Classify this service in <code>config/approved_services.yaml</code>,
+            or raise the correlation confidence by obtaining a stronger version
+            match. Until then CyberShield will not act on it automatically.
+          {% endif %}
+        </span>
+      </div>
+    {% endif %}
+
+    <div class="scroll">
+      <table>
+        <tr><th>#</th><th>Safety rule</th><th>Result</th><th>Reasoning</th></tr>
+        {% for r in decision.rules %}
+        <tr>
+          <td class="num muted">{{ loop.index }}</td>
+          <td class="mono">{{ r.rule }}</td>
+          <td>
+            {% if r.passed %}<span class="badge conf-HIGH">pass</span>
+            {% else %}<span class="badge verdict-{{ r.verdict_if_failed }}">{{ r.verdict_if_failed }}</span>{% endif %}
+          </td>
+          <td class="caveat">{{ r.detail }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    <p class="caveat">
+      Severity is evaluated <strong>last</strong>, after policy and correlation
+      confidence, so a high CVSS score can never drive this decision on its own.
+    </p>
+  </div>
+</div>
+{% endif %}
+
+{% if plan %}
+<div class="panel">
+  <h2>Exactly what would run</h2>
+  <div class="body">
+    <table class="kv">
+      <tr><th>Backend</th>
+          <td>{{ plan.backend }}
+            {% if plan.dry_run %}
+              <span class="badge conf-LOW">dry run — no command is sent</span>
+            {% else %}
+              <span class="badge sev-CRITICAL">live — this sends a real command</span>
+            {% endif %}
+          </td></tr>
+      <tr><th>Apply</th><td><code>{{ plan.apply_command }}</code></td></tr>
+      <tr><th>Rollback</th><td><code>{{ plan.rollback_command }}</code></td></tr>
+      <tr><th>Rule tag</th><td class="mono">{{ plan.rule_tag }}</td></tr>
+      <tr><th>Management channel</th><td class="mono">{{ plan.management_channel }}</td></tr>
+      <tr><th>Auto-revert at</th><td class="mono">{{ plan.expires_at }}</td></tr>
+    </table>
+    <p class="caveat">
+      The rollback command is stored in the database <em>before</em> the apply
+      command is sent, so an interruption between the two still leaves a way
+      back. Only the <code>cybershield</code> nftables table is touched; no
+      pre-existing rule on the target is read or modified.
+    </p>
+  </div>
+</div>
+{% endif %}
+
+{% if decision and decision.verdict == 'ALLOW' and plan %}
+<div class="panel">
+  <h2>Approve</h2>
+  <div class="body">
+    <div class="note warn">
+      <strong>Isolating a port is not patching it.</strong>
+      {{ candidate.product or 'The service' }} keeps running, its software is
+      unchanged, and
+      {% if candidate.cve_count %}all {{ candidate.cve_count }} CVE candidates{% else %}the underlying vulnerability{% endif %}
+      remain equally present on the target afterwards. What changes is
+      reachability from this scanner.
+    </div>
+
+    <form method="post" action="/remediation/apply">
+      <input type="hidden" name="target" value="{{ candidate.host }}">
+      <input type="hidden" name="port" value="{{ candidate.port }}">
+      <input type="hidden" name="severity" value="{{ candidate.max_severity or '' }}">
+      <input type="hidden" name="confidence" value="{{ candidate.max_confidence or '' }}">
+      <input type="hidden" name="vulnerability_id" value="{{ candidate.vulnerability_id or '' }}">
+      <input type="hidden" name="confirm" value="yes">
+
+      <div class="field">
+        <label class="check">
+          <input type="checkbox" name="acknowledge" value="yes" required>
+          <span>
+            I have read the decision above. I understand this reduces network
+            exposure and does not patch anything, that it will be applied to
+            <strong class="mono">{{ candidate.host }}</strong> tcp/{{ candidate.port }},
+            and that it auto-reverts after
+            {{ safety.remediation_ttl_minutes }} minutes.
+          </span>
+        </label>
+      </div>
+
+      <button class="primary" type="submit">
+        {% if plan.dry_run %}Run dry-run apply{% else %}Apply isolation now{% endif %}
+      </button>
+      <a class="btn" href="/remediation">Cancel</a>
+    </form>
+  </div>
+</div>
+{% elif decision %}
+<div class="panel">
+  <h2>Approve</h2>
+  <div class="body">
+    <div class="empty">
+      <span class="big">No approval control is offered</span>
+      The decision engine returned <strong>{{ decision.verdict }}</strong>, so
+      there is nothing to approve. This page renders no Apply button for a
+      non-ALLOW verdict, and the executor independently refuses any verdict
+      other than ALLOW even if one were submitted.
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endif %}
+
+{% endblock %}

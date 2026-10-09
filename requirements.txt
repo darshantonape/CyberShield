@@ -1,0 +1,27 @@
+# CyberShield runtime dependencies
+# Install into a virtualenv:
+#   /opt/homebrew/bin/python3.14 -m venv .venv
+#   source .venv/bin/activate
+#   pip install -r requirements.txt
+
+fastapi
+uvicorn[standard]
+sqlalchemy>=2.0
+alembic
+pydantic>=2.0
+httpx
+jinja2
+python-multipart
+paramiko
+defusedxml
+# Password hashing for operator accounts. Used by backend/auth/service.py;
+# there is no fallback hash implementation, so this is required, not optional.
+bcrypt
+pyyaml
+# PDF report generation (backend/reports/pdf.py).
+reportlab
+typer
+rich
+
+# Development / testing
+pytest

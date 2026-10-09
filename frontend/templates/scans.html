@@ -1,0 +1,382 @@
+{% extends "base.html" %}
+{% block title %}Scans · CyberShield{% endblock %}
+{% block heading %}Scans{% endblock %}
+{% block subheading %}Authorize · discover · detect services · correlate{% endblock %}
+{% block content %}
+
+<div class="panel">
+  <h2>Start a scan</h2>
+  <div class="body">
+    {# Keyed on everything this operator may actually scan — their own targets
+       AND the shared config scope — not on the config scope alone. #}
+    {% if not selectable_targets %}
+      <div class="note warn">
+        <strong>No authorized targets.</strong>
+        CyberShield ships with an empty scope and refuses every target until you
+        add one deliberately.
+        <span class="hint"><a href="/targets">Authorize a target →</a></span>
+      </div>
+    {% endif %}
+
+    {% if error %}
+      <div class="note danger">
+        <strong>{{ error.title }}</strong> {{ error.message }}
+        {% if error.hint %}<span class="hint">{{ error.hint }}</span>{% endif %}
+        {% if error.technical %}
+          <details class="tech"><summary>Technical detail</summary><pre>{{ error.technical }}</pre></details>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% if queued %}
+      <div class="note" role="status" aria-live="polite">
+        <span class="working"><span class="dot"></span> Scan running</span>
+        — job <code>{{ queued }}</code>. This page refreshes while it works.
+        A service-detection scan of a firewalled LAN device can take several
+        minutes: every probed port has to time out before Nmap can report it.
+        {# Indeterminate on purpose: Nmap reports no progress percentage through
+           this path, and inventing one would be a lie about how far along the
+           scan is. #}
+        <div class="progress-indet" role="progressbar"
+             aria-label="Scan in progress" aria-valuetext="Running"></div>
+      </div>
+    {% endif %}
+
+    <form method="post" action="/scans" id="scanform">
+      <div class="row">
+        <div class="field">
+          <label for="target">Target</label>
+          <input type="text" id="target" name="target" required list="authorized-targets"
+                 value="{{ typed_target or (selectable_targets[0].cidr if selectable_targets else '') }}"
+                 placeholder="192.168.1.25">
+          <datalist id="authorized-targets">
+            {% for t in selectable_targets %}
+              <option value="{{ t.cidr }}">{{ t.name }}{{ ' · shared scope' if t.scope == 'shared' }}{{ ' · laboratory' if t.is_lab }}</option>
+            {% endfor %}
+          </datalist>
+          <div class="help">Must already be in the authorized scope.</div>
+          {% if selectable_targets %}
+            <div class="help picks">
+              {% for t in selectable_targets %}
+                <button type="button" class="pick" data-target="{{ t.cidr }}"
+                        title="{{ t.name }}{{ ' (shared scope)' if t.scope == 'shared' }}">{{ t.cidr }}</button>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        <div class="field medium">
+          <label for="kind">Scan type</label>
+          <select id="kind" name="kind" onchange="syncProfiles()">
+            <option value="service_detect" {{ 'selected' if selected_kind != 'discovery' }}>Service &amp; version detection</option>
+            <option value="discovery" {{ 'selected' if selected_kind == 'discovery' }}>Host discovery only</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="profile">Profile</label>
+          <select id="profile" name="profile">
+            <optgroup label="Service &amp; version detection" id="grp-service">
+              {% for p in profile_groups.service_detect %}
+              <option value="{{ p.name }}" data-kind="service_detect"
+                      {{ 'selected' if p.name == (selected_profile or default_profile) }}>{{ p.name }}</option>
+              {% endfor %}
+            </optgroup>
+            <optgroup label="Host discovery" id="grp-discovery">
+              {% for p in profile_groups.discovery %}
+              <option value="{{ p.name }}" data-kind="discovery"
+                      {{ 'selected' if p.name == selected_profile }}>{{ p.name }}</option>
+              {% endfor %}
+            </optgroup>
+          </select>
+          <div class="help">Only profiles valid for the chosen scan type are offered.</div>
+        </div>
+        <div class="actions">
+          <button class="primary" type="submit"
+            {{ 'disabled' if preview and not preview.authorized }}>
+            <svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-scan"/></svg> Run scan
+          </button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="check">
+          <input type="checkbox" name="correlate_after" value="yes" checked>
+          <span>
+            Correlate detected software against NVD when the scan finishes.
+            Requires internet access; if the lookup fails the scan results are
+            still stored and the failure is recorded.
+          </span>
+        </label>
+      </div>
+    </form>
+
+    {# Pre-scan status (§18): authorization is known before running, and
+       reachability deliberately is not — probing a host to render a form would
+       mean touching the network before the operator asked for it. #}
+    {% if preview %}
+    <div class="panel" style="margin:14px 0 0;background:var(--bg-2)">
+      <h2>Pre-scan status</h2>
+      <div class="body">
+        <table class="kv">
+          <tr><th>Target</th><td class="mono">{{ preview.target }}</td></tr>
+          <tr>
+            <th>Authorization</th>
+            <td>
+              {% if preview.authorized %}
+                <span class="reach reachable">AUTHORIZED</span>
+                <span class="caveat">by scope entry <strong>{{ preview.authorizing_entry }}</strong>{% if preview.is_lab %} · laboratory target, remediation permitted{% else %} · assessment only{% endif %}</span>
+              {% else %}
+                <span class="reach denied">NOT AUTHORIZED</span>
+                <span class="caveat">the scan will be refused before Nmap is invoked</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th>Reachability</th>
+            <td>
+              <span class="reach unknown">UNKNOWN</span>
+              <span class="caveat">not probed — determined by the scan itself</span>
+            </td>
+          </tr>
+        </table>
+        {% if not preview.authorized and preview.friendly %}
+          <div class="note danger" style="margin:12px 0 0">
+            <strong>{{ preview.friendly.title }}</strong> {{ preview.friendly.message }}
+            <span class="hint">{{ preview.friendly.hint }}</span>
+            <details class="tech"><summary>Technical detail</summary><pre>{{ preview.friendly.technical }}</pre></details>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <p class="caveat" style="margin-top:12px">
+      Raw Nmap flags are never accepted here — only a named profile from
+      <code>config/scan_profiles.yaml</code>. Scans use an unprivileged TCP
+      connect scan with no intrusive, exploit or brute-force scripts.
+    </p>
+  </div>
+</div>
+
+{% if profile_groups.service_detect or profile_groups.discovery %}
+<div class="panel flush">
+  <h2>Profiles available</h2>
+  <div class="scroll">
+    <table>
+      <tr><th>Profile</th><th>For</th><th class="num">Ports</th><th>Host discovery</th><th>Notes</th></tr>
+      {% for kind, label in [('service_detect', 'Service &amp; version'), ('discovery', 'Host discovery')] %}
+        {% for p in profile_groups[kind] %}
+        <tr>
+          <td class="mono">{{ p.name }}</td>
+          <td class="muted">{{ label | safe }}</td>
+          <td class="num">{{ p.port_count if p.port_count else '—' }}</td>
+          <td>
+            {% if p.skips_host_discovery %}
+              <span class="badge pill-fp" title="-Pn: every address is probed regardless of whether it answers a ping">skipped (-Pn)</span>
+            {% else %}
+              <span class="badge conf-LOW">performed</span>
+            {% endif %}
+          </td>
+          <td class="caveat">{{ p.advice or p.description }}</td>
+        </tr>
+        {% endfor %}
+      {% endfor %}
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% if last_summary %}
+<div class="panel">
+  <h2>Latest result</h2>
+  <div class="body">
+    {% if last_summary.status == 'failed' %}
+      <div class="note danger">
+        <strong>This scan failed.</strong> No results were recorded, and nothing
+        is known about the target's services. A failed scan is never reported as
+        a clean one.
+        {% if last_summary.error %}
+        <details class="tech"><summary>Recorded error</summary><pre>{{ last_summary.error }}</pre></details>
+        {% endif %}
+      </div>
+    {% elif last_summary.reachability == 'unreachable' %}
+      <div class="note warn">
+        <strong>Target is authorized but unreachable.</strong>
+        {{ last_summary.reachability_note }}
+        <span class="hint">Common causes on a real network:</span>
+        <ul>
+          {% for cause in unreachable_causes %}<li>{{ cause }}</li>{% endfor %}
+        </ul>
+      </div>
+    {% elif last_summary.status == 'completed_with_timeouts' %}
+      <div class="note warn">
+        <strong>Results are incomplete.</strong> A host hit the per-host timeout
+        or the output was truncated, so the port list is partial. An absent port
+        here does not mean it was closed.
+      </div>
+    {% endif %}
+
+    <table class="kv">
+      <tr><th>Target</th><td class="mono">{{ last_summary.target }}</td>
+          <th>Profile</th><td>{{ last_summary.profile }}</td></tr>
+      <tr><th>Scan status</th>
+          <td>
+            {% if last_summary.status == 'completed' %}<span class="badge conf-HIGH">completed</span>
+            {% elif last_summary.status == 'completed_unreachable' %}<span class="badge sev-MEDIUM">unreachable</span>
+            {% elif last_summary.status == 'completed_with_timeouts' %}<span class="badge sev-MEDIUM">partial</span>
+            {% else %}<span class="badge sev-CRITICAL">{{ last_summary.status }}</span>{% endif %}
+          </td>
+          <th>Duration</th><td>{{ '%.2f'|format(last_summary.duration_seconds or 0) }}s</td></tr>
+      <tr><th>Hosts found</th><td>{{ last_summary.hosts_up if last_summary.hosts_up is not none else '—' }}</td>
+          <th>Open services</th><td>{{ last_summary.open_services if last_summary.open_services is not none else '—' }}</td></tr>
+      <tr><th>Services identified</th><td>{{ last_summary.services_detected }}
+            <span class="caveat">(product string detected)</span></td>
+          <th>CVE candidates</th><td>{{ last_summary.vulnerabilities }}</td></tr>
+      <tr><th>Reachability</th>
+          <td colspan="3">
+            <span class="reach {{ last_summary.reachability or 'unknown' }}">{{ (last_summary.reachability or 'unknown')|upper }}</span>
+            <span class="caveat">{{ last_summary.reachability_note or '' }}</span>
+          </td></tr>
+    </table>
+    <p style="margin:12px 0 0">
+      <a class="btn" href="/scans/{{ last_summary.session_id }}">Open full result →</a>
+    </p>
+  </div>
+</div>
+{% endif %}
+
+{% if jobs %}
+<div class="panel flush">
+  <h2>Jobs</h2>
+  <div class="scroll">
+    <table>
+      <tr><th>Job</th><th>Kind</th><th>State</th><th>Target</th><th>Result</th><th>Error</th></tr>
+      {% for j in jobs %}
+      <tr>
+        <td class="mono">{{ j.job_id[:10] }}</td>
+        <td>{{ j.kind }}</td>
+        <td>
+          {% if j.state == 'running' %}<span class="working"><span class="dot"></span> running</span>
+          {% elif j.state == 'completed' %}<span class="badge conf-HIGH">completed</span>
+          {% elif j.state == 'failed' %}<span class="badge sev-CRITICAL">failed</span>
+          {% else %}<span class="badge conf-LOW">{{ j.state }}</span>{% endif %}
+        </td>
+        <td class="mono muted">{{ (j.payload or {}).get('target', '—') }}</td>
+        <td class="muted">
+          {% if j.result %}
+            {{ j.result.get('open_services', '—') }} open services ·
+            {{ j.result.get('reachability', '—') }}
+          {% else %}—{% endif %}
+        </td>
+        <td class="caveat">{{ j.error or '' }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<div class="panel flush">
+  <h2>Scan history</h2>
+  <div class="scroll">
+    {% if scans %}
+    <table>
+      <tr><th>Session</th><th>Target</th><th>Profile</th><th>Kind</th><th>Status</th>
+          <th class="num">Hosts</th><th class="num">Open</th>
+          <th class="num">Duration</th><th>Nmap</th><th>Config</th><th>Operator</th><th>Started</th></tr>
+      {% for s in scans %}
+      <tr>
+        <td><a class="mono" href="/scans/{{ s.session_id }}">{{ s.session_id[:12] }}</a></td>
+        <td class="mono">{{ s.target_spec }}</td>
+        <td>{{ s.profile }}</td>
+        <td>{{ s.scan_kind }}</td>
+        <td>
+          {% if s.status == 'completed_with_timeouts' %}
+            <span class="badge sev-MEDIUM">partial</span>
+          {% elif s.status == 'completed_unreachable' %}
+            <span class="badge sev-MEDIUM" title="{{ s.reachability_note }}">unreachable</span>
+          {% elif s.status == 'failed' %}
+            <span class="badge sev-CRITICAL" title="{{ s.error }}">failed</span>
+          {% else %}<span class="badge conf-HIGH">completed</span>{% endif %}
+        </td>
+        <td class="num">{{ s.hosts_up if s.hosts_up is not none else '—' }}</td>
+        <td class="num">{{ s.open_services if s.open_services is not none else '—' }}</td>
+        <td class="num">{{ '%.1f'|format(s.duration_seconds or 0) }}s</td>
+        <td class="muted">{{ s.nmap_version or '—' }}</td>
+        <td class="mono muted">{{ s.config_hash or '—' }}</td>
+        <td class="muted">{{ s.initiated_by or '—' }}</td>
+        <td class="muted">{{ s.started_at.strftime('%Y-%m-%d %H:%M') if s.started_at }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <div class="empty">
+      <span class="big">No scans recorded</span>
+      Authorize a target, then run a scan. Results appear here with the exact
+      Nmap command and config hash that produced them.
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  // Keep the profile list consistent with the chosen scan type. Pairing a
+  // discovery profile with a service-detection scan produced a run that
+  // reported "0 open services" without scanning any ports; the server rejects
+  // that combination too, and this stops it being offered at all.
+  function syncProfiles() {
+    var kind = document.getElementById('kind').value;
+    var profile = document.getElementById('profile');
+    var firstMatch = null;
+    for (var i = 0; i < profile.options.length; i++) {
+      var option = profile.options[i];
+      var matches = option.getAttribute('data-kind') === kind;
+      option.hidden = !matches;
+      option.disabled = !matches;
+      if (matches && firstMatch === null) { firstMatch = option; }
+    }
+    document.getElementById('grp-service').hidden = kind !== 'service_detect';
+    document.getElementById('grp-discovery').hidden = kind !== 'discovery';
+    if (profile.selectedOptions.length === 0 ||
+        profile.selectedOptions[0].getAttribute('data-kind') !== kind) {
+      if (firstMatch) { firstMatch.selected = true; }
+    }
+  }
+  syncProfiles();
+
+  // Re-check authorization as the operator types, without probing anything.
+  var targetInput = document.getElementById('target');
+  var reloadTimer = null;
+  targetInput.addEventListener('change', function () {
+    if (reloadTimer) { clearTimeout(reloadTimer); }
+    reloadTimer = setTimeout(function () {
+      // Carry the current scan type and profile through the reload. Without
+      // this the page came back with the defaults selected, silently discarding
+      // the operator's choice the moment they edited the target.
+      var params = new URLSearchParams({
+        target: targetInput.value,
+        kind: document.getElementById('kind').value,
+        profile: document.getElementById('profile').value,
+      });
+      window.location = '/scans?' + params.toString();
+    }, 250);
+  });
+
+  // Quick-pick buttons for the operator's authorized targets. Fires the same
+  // 'change' handler above, so the authorization verdict refreshes with it.
+  var picks = document.querySelectorAll('.pick');
+  for (var p = 0; p < picks.length; p++) {
+    picks[p].addEventListener('click', function () {
+      targetInput.value = this.getAttribute('data-target');
+      targetInput.dispatchEvent(new Event('change'));
+    });
+  }
+</script>
+
+{% if running %}
+<script>
+  // Poll only while a job is actually in flight.
+  setTimeout(function () { window.location.reload(); }, 5000);
+</script>
+{% endif %}
+
+{% endblock %}

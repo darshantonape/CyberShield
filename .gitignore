@@ -1,0 +1,71 @@
+# Local authorization and machine-specific credentials
+AUTHORIZATION.md
+config/authorized_targets.yaml
+lab/build/authorized_keys
+
+# Local experiment results and potentially sensitive scan data
+experiments/raw/
+experiments/scans/
+experiments/reports/
+experiments/remediation/
+
+# Local backups
+backups/
+# Python environment and cache
+.venv/
+.venv-py310-backup/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Secrets and private configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_*
+*_ed25519
+
+# Runtime database and logs
+*.db
+*.sqlite
+*.sqlite3
+*.log
+data/audit.jsonl
+
+# Runtime-generated data
+data/raw/*
+!data/raw/.gitkeep
+data/nvd_cache/*
+!data/nvd_cache/.gitkeep
+
+# Local backups
+backups/
+
+# Private and transient experiment output
+experiments/.scratch/
+experiments/raw/
+experiments/scans/
+experiments/reports/
+experiments/remediation/
+
+# Editor settings
+.vscode/
+.idea/
+.DS_Store
+# Local authorization and machine-specific credentials
+AUTHORIZATION.md
+config/authorized_targets.yaml
+lab/build/authorized_keys
+
+# Local experiment results and potentially sensitive scan data
+experiments/raw/
+experiments/scans/
+experiments/reports/
+experiments/remediation/
+
+# Local backups
+backups/
+.git-history-backup/

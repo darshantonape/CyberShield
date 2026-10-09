@@ -1,0 +1,106 @@
+# Ground truth for the CyberShield laboratory.
+#
+# These versions were read from the software itself inside each container on
+# 2026-08-31, NOT copied from the scan results. They are the reference against
+# which detection accuracy is measured, so deriving them from CyberShield's own
+# output would make the accuracy figure meaningless.
+#
+# Commands used:
+#   docker exec cybershield-lab-web   httpd -v
+#   docker exec cybershield-lab-ftp   dpkg-query -W -f='${Version}' vsftpd
+#   docker exec cybershield-lab-cache redis-server --version
+#   docker exec cybershield-lab-db    mariadbd --version
+#   docker exec cybershield-lab-<x>   dpkg-query -W -f='${Version}' openssh-server
+#
+# `expected_version` is the upstream version a correct normalization should
+# produce. Where the advertised string differs from it, `advertised` records
+# what the service actually puts on the wire.
+
+collected_at: "2026-08-31"
+method: >-
+  Versions reported by each service's own binary or its distribution package
+  inside the container, read directly over docker exec.
+
+services:
+
+  - host: 192.168.64.11
+    port: 8080
+    product: "Apache httpd"
+    expected_version: "2.4.49"
+    source: "httpd -v -> Server version: Apache/2.4.49 (Unix)"
+    is_lab_target: true
+
+  - host: 192.168.64.12
+    port: 21
+    product: "vsftpd"
+    expected_version: "3.0.3"
+    advertised: "3.0.3"
+    source: "dpkg-query openssh vsftpd -> 3.0.3-12 (Debian package revision -12 is not upstream)"
+    is_lab_target: true
+
+  - host: 192.168.64.13
+    port: 6379
+    product: "Redis key-value store"
+    expected_version: "5.0.14"
+    source: "redis-server --version -> Redis server v=5.0.14"
+    is_lab_target: true
+
+  - host: 192.168.64.14
+    port: 3306
+    product: "MariaDB"
+    expected_version: "10.5.29"
+    advertised: "5.5.5-10.5.29"
+    source: >-
+      mariadbd --version -> 10.5.29-MariaDB-ubu2004. MariaDB 10.x prepends
+      "5.5.5-" on the wire for MySQL client compatibility; the upstream version
+      is 10.5.29.
+    is_lab_target: true
+
+  # SSH management channels. Not research targets, but detected and correlated
+  # like anything else, so they are included in the accuracy measurement.
+  - host: 192.168.64.11
+    port: 2222
+    product: "OpenSSH"
+    expected_version: "7.9p1"
+    source: "openssh-server 1:7.9p1-10+deb10u4; banner SSH-2.0-OpenSSH_7.9p1 Debian-10+deb10u4"
+    is_lab_target: false
+
+  - host: 192.168.64.12
+    port: 2222
+    product: "OpenSSH"
+    expected_version: "8.4p1"
+    source: "openssh-server 1:8.4p1-5+deb11u7"
+    is_lab_target: false
+
+  - host: 192.168.64.13
+    port: 2222
+    product: "OpenSSH"
+    expected_version: "8.4p1"
+    source: "openssh-server 1:8.4p1-5+deb11u7"
+    is_lab_target: false
+
+  - host: 192.168.64.14
+    port: 2222
+    product: "OpenSSH"
+    expected_version: "8.2p1"
+    source: "openssh-server 1:8.2p1-4ubuntu0.13"
+    is_lab_target: false
+
+# ---------------------------------------------------------------------------
+# Known measurement artifact
+# ---------------------------------------------------------------------------
+# tcp/22 appears OPEN on all four laboratory addresses, but it is NOT a service
+# belonging to any target. The Colima VM's own sshd binds 0.0.0.0:22, and the
+# targets are published on IP aliases of that same interface, so the VM's sshd
+# answers on every alias. It is the same single service seen four times.
+#
+# It is therefore excluded from detection-accuracy and correlation counts, and
+# that exclusion is stated in the results rather than applied silently.
+artifacts:
+  - port: 22
+    product: "OpenSSH"
+    version: "9.6p1"
+    explanation: >-
+      Colima VM host sshd (OpenSSH 9.6p1 Ubuntu 3ubuntu13.16), reachable on all
+      four aliases because it binds 0.0.0.0:22 on the shared interface. One
+      service, observed four times. Excluded from per-target metrics.

@@ -1,0 +1,84 @@
+# CyberShield — Approved service policy  (spec §6C)
+#
+# An open port is NOT automatically treated as unauthorized. A service becomes
+# a candidate for isolation only when it is explicitly classified as such here
+# AND passes every other check in the risk decision engine.
+#
+# Classifications
+#   approved                Expected and permitted on this network.
+#                           Never isolated.
+#   review_required         Needs human judgement before any action. Never
+#                           isolated automatically. The decision engine returns
+#                           REVIEW_REQUIRED for these.
+#   eligible_for_isolation  Not permitted to be network-exposed here. MAY be
+#                           isolated, but only if authorization, protected-port,
+#                           confidence and severity checks all pass as well.
+#   protected               Never isolated. Also derived automatically from
+#                           protected_ports.yaml, which always wins over any
+#                           value set in this file.
+#
+# `default_policy` applies to any port not listed below. It is deliberately
+# review_required so that an unclassified open port is surfaced to the operator
+# rather than becoming eligible for automatic action.
+
+default_policy: review_required
+
+services:
+  # --- Management and core web services ---------------------------------
+  - port: 22
+    proto: tcp
+    policy: protected
+    reason: "SSH management channel. Also in protected_ports.yaml."
+  - port: 2222
+    proto: tcp
+    policy: protected
+    reason: "Laboratory SSH management channel. Also in protected_ports.yaml."
+  - port: 80
+    proto: tcp
+    policy: protected
+    reason: "HTTP. Also in protected_ports.yaml."
+  - port: 443
+    proto: tcp
+    policy: protected
+    reason: "HTTPS. Also in protected_ports.yaml."
+
+  # --- Deliberately exposed laboratory services -------------------------
+  # These are the research targets. Each is on a non-protected port so that
+  # controlled isolation is actually demonstrable.
+  - port: 21
+    proto: tcp
+    policy: eligible_for_isolation
+    reason: "Legacy cleartext FTP — not permitted to be exposed on the lab network."
+  - port: 445
+    proto: tcp
+    policy: eligible_for_isolation
+    reason: "SMB — must not be network-exposed."
+  - port: 3306
+    proto: tcp
+    policy: eligible_for_isolation
+    reason: "MySQL — should be bound to localhost, not the network."
+  - port: 6379
+    proto: tcp
+    policy: eligible_for_isolation
+    reason: "Redis — historically unauthenticated by default."
+  - port: 8080
+    proto: tcp
+    policy: eligible_for_isolation
+    reason: "Legacy HTTP test service on a non-protected port."
+
+  # --- Present but not a research target ---------------------------------
+  - port: 53
+    proto: tcp
+    policy: review_required
+    reason: "DNS may be legitimate infrastructure; requires operator judgement."
+
+# Minimum CVE severity before an eligible service may actually be isolated.
+# One of: LOW, MEDIUM, HIGH, CRITICAL. Applied to the highest-severity CVE
+# candidate correlated to that service.
+minimum_severity_for_eligibility: HIGH
+
+# Minimum correlation confidence before isolation is permitted.
+# One of: LOW, MEDIUM, HIGH.
+# A keyword-only (fallback) match is LOW confidence by construction, so this
+# setting prevents action being taken on a weak match.
+minimum_confidence_for_eligibility: MEDIUM

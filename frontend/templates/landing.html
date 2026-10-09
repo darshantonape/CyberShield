@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CyberShield — vulnerability assessment &amp; controlled exposure reduction</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  {# ?v= is a cache buster, and it is not cosmetic. The redesign changed the
+     markup and the stylesheet together: a browser that still held the PREVIOUS
+     style.css rendered the new HTML against rules that no longer matched it,
+     which produced 300x150px icons, a theme control 582px tall and a dashboard
+     pushed off the bottom of the page. Bump this string whenever style.css or
+     theme.js changes so the two can never be served out of step. #}
+  <link rel="stylesheet" href="/static/style.css?v=20260926a">
+  <style>
+    body.landing { background: var(--bg); color: var(--ink); }
+    .lp { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+    .lp-nav { display:flex; align-items:center; gap:12px; padding:20px 0; }
+    .lp-nav img { width:34px; height:34px; }
+    .lp-nav .brand { font-weight:700; font-size:17px; letter-spacing:.2px; }
+    .lp-nav .tag { color:var(--muted); font-size:12px; }
+    .lp-nav .spacer { flex:1; }
+    .lp-hero { padding:64px 0 40px; }
+    .lp-hero h1 { font-size:44px; line-height:1.08; margin:0 0 16px; letter-spacing:-.5px; max-width:16ch; }
+    .lp-hero h1 .grad { background:linear-gradient(90deg,#5ccbfa,#0ea5e9); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .lp-hero p.lede { font-size:18px; color:var(--ink-2); max-width:60ch; line-height:1.55; margin:0 0 26px; }
+    .lp-cta { display:flex; gap:12px; flex-wrap:wrap; }
+    .lp-badges { margin-top:26px; display:flex; gap:10px; flex-wrap:wrap; }
+    .lp-badge { font-size:12px; color:var(--muted); border:1px solid var(--line); border-radius:999px; padding:5px 12px; }
+    .lp-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; margin:8px 0 40px; }
+    .lp-card { background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px; }
+    .lp-card .ico { font-size:20px; color:#5ccbfa; }
+    .lp-card h3 { margin:10px 0 6px; font-size:15px; }
+    .lp-card p { margin:0; color:var(--ink-2); font-size:13.5px; line-height:1.5; }
+    .lp-section { padding:26px 0; border-top:1px solid var(--line); }
+    .lp-section h2 { font-size:24px; margin:0 0 18px; letter-spacing:-.3px; }
+    .lp-steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; counter-reset:step; }
+    .lp-step { background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:16px; position:relative; }
+    .lp-step::before { counter-increment:step; content:counter(step); display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:7px; background:rgba(56,189,248,.14); color:#5ccbfa; font-weight:700; font-size:13px; margin-bottom:8px; }
+    .lp-step h4 { margin:0 0 4px; font-size:14px; }
+    .lp-step p { margin:0; color:var(--ink-2); font-size:12.5px; line-height:1.45; }
+    .lp-note { background:var(--surface); border:1px solid var(--line); border-left:3px solid #5ccbfa; border-radius:10px; padding:16px 18px; color:var(--ink-2); font-size:13.5px; line-height:1.55; }
+    .lp-foot { padding:26px 0 40px; color:var(--muted); font-size:12.5px; border-top:1px solid var(--line); }
+    @media (max-width:640px){ .lp-hero h1{font-size:34px;} }
+  </style>
+</head>
+<body class="landing">
+<div class="lp">
+
+  <nav class="lp-nav">
+    <img src="/static/logo.svg" alt="">
+    <div>
+      <div class="brand">CyberShield</div>
+      <div class="tag">Security console</div>
+    </div>
+    <div class="spacer"></div>
+    <a class="btn" href="/login">Sign in</a>
+    <a class="btn primary" href="/signup">Create account</a>
+  </nav>
+
+  <header class="lp-hero">
+    <h1>Vulnerability assessment and <span class="grad">controlled exposure reduction</span>.</h1>
+    <p class="lede">
+      CyberShield discovers hosts and services on networks you are authorized to
+      assess, correlates detected software against CVE records, and — for eligible
+      laboratory targets — applies reversible, network-level isolation that it
+      then verifies by re-scanning. It is fail-closed: nothing is scanned unless
+      you have explicitly authorized it.
+    </p>
+    <div class="lp-cta">
+      <a class="btn primary wide" style="width:auto" href="/signup">Get started</a>
+      <a class="btn" href="/login">I already have an account</a>
+    </div>
+    <div class="lp-badges">
+      <span class="lp-badge">Authorized targets only</span>
+      <span class="lp-badge">CVE candidates, not false certainties</span>
+      <span class="lp-badge">Reversible, audited actions</span>
+      <span class="lp-badge">Per-user data isolation</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="lp-grid">
+      <div class="lp-card">
+        <div class="ico">⌖</div>
+        <h3>Real Nmap scanning</h3>
+        <p>Host discovery, service and version detection through curated, non-intrusive
+           Nmap profiles. An unreachable target is recorded as unreachable — never as a clean result.</p>
+      </div>
+      <div class="lp-card">
+        <div class="ico">⚠</div>
+        <h3>CVE correlation</h3>
+        <p>Detected software is normalized to CPEs and correlated against NVD. Every match is a
+           <em>candidate</em> with its evidence, confidence and CVSS score — reviewed by a human, not auto-confirmed.</p>
+      </div>
+      <div class="lp-card">
+        <div class="ico">⛨</div>
+        <h3>Controlled remediation</h3>
+        <p>For eligible lab targets, reversible firewall isolation with the rollback command stored
+           before it is applied, a TTL auto-revert, and protected management ports that can never be cut off.</p>
+      </div>
+      <div class="lp-card">
+        <div class="ico">▦</div>
+        <h3>Professional reports</h3>
+        <p>Per-scan HTML and PDF reports covering targets, services, CVE candidates, severity,
+           remediation status and verification — with the scan's real state stated plainly.</p>
+      </div>
+      <div class="lp-card">
+        <div class="ico">≡</div>
+        <h3>Tamper-evident audit</h3>
+        <p>Every scan, review and remediation is written to a hash-chained audit log. You see your own
+           trail; the chain's integrity is verifiable end to end.</p>
+      </div>
+      <div class="lp-card">
+        <div class="ico">◐</div>
+        <h3>Isolated by account</h3>
+        <p>Each operator's targets, scans, findings, reports and audit are private to their account.
+           A new account starts with a clean, empty dashboard.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="lp-section">
+    <h2>How it works</h2>
+    <div class="lp-steps">
+      <div class="lp-step"><h4>Authorize a target</h4><p>Add a private IPv4 address or range you own or have written permission to assess. Public ranges are refused.</p></div>
+      <div class="lp-step"><h4>Run a scan</h4><p>Pick a profile and scan. Scope and authorization are re-checked before a single packet is sent.</p></div>
+      <div class="lp-step"><h4>Correlate &amp; review</h4><p>Correlate services against NVD, then review the CVE candidates with their evidence and confidence.</p></div>
+      <div class="lp-step"><h4>Reduce &amp; verify</h4><p>Where eligible, apply reversible isolation and confirm the change by re-scanning — then generate a report.</p></div>
+    </div>
+  </section>
+
+  <section class="lp-section">
+    <h2>Security-first by design</h2>
+    <div class="lp-note">
+      CyberShield reduces network <strong>exposure</strong>; it does not patch software, and it never
+      claims to. A CVE correlation is a candidate requiring human review, not a confirmed vulnerability.
+      Firewall actions are reversible, require explicit confirmation, and are refused on any target that
+      is not an authorized, remediable laboratory host. This is a tool for authorized assessment of your
+      own systems and lab environments — not for scanning networks you do not control.
+    </div>
+  </section>
+
+  <footer class="lp-foot">
+    CyberShield · authorized laboratory and self-owned network assessment only ·
+    <a href="/login">Sign in</a> · <a href="/signup">Create an operator account</a>
+    {% if not has_accounts %}<br>No operator account exists yet — the first account you create becomes the operator.{% endif %}
+  </footer>
+
+</div>
+</body>
+</html>

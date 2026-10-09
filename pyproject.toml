@@ -1,0 +1,53 @@
+[project]
+name = "cybershield"
+version = "0.1.0"
+description = "Lightweight vulnerability assessment with controlled, reversible network-level exposure reduction for authorized laboratory networks."
+requires-python = ">=3.11"
+
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "sqlalchemy>=2.0",
+    "alembic",
+    "pydantic>=2.0",
+    "pydantic-settings",
+    "httpx",
+    "jinja2",
+    "python-multipart",
+    "paramiko",
+    "defusedxml",
+    # Operator account password hashing.
+    "bcrypt",
+    "pyyaml",
+    "typer",
+    "rich",
+    # PDF assessment reports (backend/reports/pdf.py).
+    "reportlab",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-asyncio"]
+
+# The application is run as an ASGI app, not a console script:
+#   uvicorn backend.main:app --port 8000
+# There is no `cybershield` package or CLI module, so no [project.scripts]
+# entry is declared — an entry point pointing at code that does not exist would
+# make `pip install` produce a command that errors on first use.
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Integration tests touch the network or the lab; excluded from the default run.
+addopts = "-q -m 'not integration'"
+markers = [
+    "integration: requires the live lab or network access",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+# The importable package is `backend` (imported as `backend.main:app`), not
+# `cybershield`. The previous value matched nothing, so an editable install
+# installed zero packages.
+include = ["backend*"]

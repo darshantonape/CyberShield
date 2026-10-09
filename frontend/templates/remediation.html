@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Remediation · CyberShield{% endblock %}
+{% block heading %}Remediation{% endblock %}
+{% block subheading %}Approval-gated, reversible, verified{% endblock %}
+{% block content %}
+
+<div class="note">
+  <strong>This is network-level exposure reduction, not patching.</strong>
+  Isolating a port stops it being reachable from this scanner. The service keeps
+  running, its software is unchanged, and the underlying vulnerability remains
+  present on the target.
+</div>
+
+<div class="note">
+  <strong>Nothing here happens automatically.</strong>
+  A candidate reaches ALLOW only after every safety rule passes, and an action
+  is sent only when an operator confirms it explicitly. The rollback command is
+  computed and stored <em>before</em> the rule is applied, the change is verified
+  by rescanning, and the rule auto-reverts after
+  {{ safety.remediation_ttl_minutes }} minutes.
+</div>
+
+{% if message %}<div class="note ok">{{ message }}</div>{% endif %}
+{% if error %}<div class="note danger">{{ error }}</div>{% endif %}
+
+<div class="panel flush">
+  <h2>Remediation candidates <span class="right">approval required for every action</span></h2>
+  <div class="scroll">
+    {% if candidates %}
+    <table>
+      <tr><th>Host</th><th>Port</th><th>Product</th><th>Version</th>
+          <th class="num">CVEs</th><th>Max severity</th><th>Max confidence</th>
+          <th>Verdict</th><th>Reason</th><th>Mode</th><th></th></tr>
+      {% for c in candidates %}
+      <tr>
+        <td class="mono">{{ c.host }}</td>
+        <td class="mono">{{ c.proto }}/{{ c.port }}</td>
+        <td>{{ c.product or '—' }}</td>
+        <td class="mono">{{ c.version or '—' }}</td>
+        <td class="num">{{ c.cve_count }}</td>
+        <td><span class="badge sev-{{ c.max_severity or 'NONE' }}">{{ c.max_severity or 'unscored' }}</span></td>
+        <td><span class="badge conf-{{ c.max_confidence or 'LOW' }}">{{ c.max_confidence or 'none' }}</span></td>
+        <td><span class="badge verdict-{{ c.verdict }}">{{ c.verdict }}</span></td>
+        <td class="caveat">{{ c.reason or 'All safety checks passed.' }}</td>
+        <td>
+          {% if not safety.live_remediation_enabled %}
+            <span class="badge conf-LOW" title="Live enforcement is off; an approved action renders the commands and sends nothing">dry-run</span>
+          {% else %}
+            <span class="badge sev-CRITICAL" title="Live enforcement is armed; an approved action sends a real command">live</span>
+          {% endif %}
+        </td>
+        <td>
+          {# Every verdict leads to the same review page. An ALLOW gets an
+             approval control there; a DENY or REVIEW_REQUIRED gets the full
+             rule-by-rule explanation of why it was refused. Approval is never
+             a single click from a table row. #}
+          {% if c.verdict == 'ALLOW' %}
+            <a class="btn" href="/remediation/review?target={{ c.host }}&port={{ c.port }}">
+              Review &amp; approve &rarr;
+            </a>
+          {% else %}
+            <a class="btn" href="/remediation/review?target={{ c.host }}&port={{ c.port }}">
+              Why refused?
+            </a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <div class="empty">
+      <span class="big">No remediation candidates</span>
+      No open service in the latest assessment scan has correlated CVE
+      candidates. Remediation is only offered for services where a CVE
+      correlation exists — an open port on its own is never treated as a reason
+      to act.
+      <div class="cta"><a class="btn" href="/scans">Run a scan and correlate it &rarr;</a></div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Protected ports — never isolatable</h2>
+  <div class="body">
+    <table>
+      <tr><th>Port</th><th>Reason</th></tr>
+      {% for p in safety.protected_ports %}
+      <tr><td class="mono">{{ p.proto }}/{{ p.port }}</td><td class="caveat">{{ p.reason }}</td></tr>
+      {% endfor %}
+    </table>
+    <p class="caveat" style="margin-top:10px">
+      These are refused by the decision engine before any command is built.
+      There is no <code>force</code> parameter, API field, or UI control that
+      bypasses them. The SSH port actually in use for a target is additionally
+      protected even if it is not on this list.
+    </p>
+  </div>
+</div>
+
+<div class="panel flush">
+  <h2>Actions &amp; verification</h2>
+  <div class="scroll">
+    {% if actions %}
+    <table>
+      <tr><th>Request</th><th>Target</th><th>Port</th><th>Backend</th><th>State</th>
+          <th>Before</th><th>After</th><th>Reduced</th><th>Mgmt</th><th>Rollback</th><th></th></tr>
+      {% for a in actions %}
+      <tr>
+        <td><a class="mono" href="/remediation/action/{{ a.request_id }}">{{ a.request_id[:10] }}</a></td>
+        <td class="mono">{{ a.target_address }}</td>
+        <td class="mono">{{ a.proto }}/{{ a.port }}</td>
+        <td>{{ a.backend }}{% if a.backend == 'dryrun' %} <span class="badge conf-LOW">no-op</span>{% endif %}</td>
+        <td>{{ a.state }}</td>
+        <td class="state-{{ (a.before_state or {}).get('state','') }}">{{ (a.before_state or {}).get('state','—') }}</td>
+        <td class="state-{{ (a.after_state or {}).get('state','') }}">{{ (a.after_state or {}).get('state','—') }}</td>
+        <td>{% if a.exposure_reduced %}<span class="badge conf-HIGH">yes</span>
+            {% elif a.exposure_reduced is not none %}<span class="badge sev-CRITICAL">no</span>
+            {% else %}—{% endif %}</td>
+        <td>{% if a.management_channel_intact %}<span class="badge conf-HIGH">intact</span>
+            {% elif a.management_channel_intact is not none %}<span class="badge sev-CRITICAL">LOST</span>
+            {% else %}—{% endif %}</td>
+        <td>{% if a.rollback_verified %}<span class="badge conf-HIGH">verified</span>
+            {% elif a.rollback_verified is not none %}<span class="badge sev-CRITICAL">failed</span>
+            {% else %}—{% endif %}</td>
+        <td>
+          {% if a.state == 'applied' %}
+          <form method="post" action="/remediation/{{ a.request_id }}/rollback"
+                onsubmit="return confirm('Roll back the isolation of {{ a.proto }}/{{ a.port }} on {{ a.target_address }}?');">
+            <button class="danger" type="submit">Roll back</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% if a.apply_argv %}
+      <tr>
+        <td></td>
+        <td colspan="10" class="caveat">
+          apply: <code>{{ a.apply_argv | join(' ') }}</code> ·
+          rollback: <code>{{ a.rollback_argv | join(' ') }}</code>
+          {% if a.expires_at %} · expires {{ a.expires_at.strftime('%H:%M:%S') }} UTC{% endif %}
+          {% if a.error %}<br><strong>error:</strong> {{ a.error }}{% endif %}
+        </td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+    </table>
+    <p class="caveat">
+      The rollback command is computed and stored <em>before</em> the rule is
+      applied, so an interrupted run still leaves a way back. Applied rules
+      auto-revert after their TTL.
+    </p>
+    {% else %}<div class="empty">No remediation actions recorded.</div>{% endif %}
+  </div>
+</div>
+
+{% endblock %}

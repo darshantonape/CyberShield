@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · CyberShield</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  {# ?v= is a cache buster, and it is not cosmetic. The redesign changed the
+     markup and the stylesheet together: a browser that still held the PREVIOUS
+     style.css rendered the new HTML against rules that no longer matched it,
+     which produced 300x150px icons, a theme control 582px tall and a dashboard
+     pushed off the bottom of the page. Bump this string whenever style.css or
+     theme.js changes so the two can never be served out of step. #}
+  <link rel="stylesheet" href="/static/style.css?v=20260926a">
+</head>
+<body class="auth">
+
+<div class="auth-card">
+  <div class="auth-brand">
+    <img src="/static/logo.svg" alt="CyberShield">
+    <div class="name">CyberShield</div>
+    <div class="tag">Vulnerability assessment &amp; controlled exposure reduction</div>
+  </div>
+
+  {% if notice %}<div class="note ok">{{ notice }}</div>{% endif %}
+  {% if error %}<div class="note danger">{{ error }}</div>{% endif %}
+
+  {% if first_run %}
+    <div class="note">
+      <strong>First run.</strong> No operator account exists yet.
+      <span class="hint">Create one to continue.</span>
+    </div>
+  {% endif %}
+
+  <h2>Sign in</h2>
+  <p class="lede">
+    Every scan, remediation and firewall action is recorded against the operator
+    who requested it.
+  </p>
+
+  <form method="post" action="/login">
+    <input type="hidden" name="next" value="{{ next }}">
+    <div class="field">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" value="{{ username }}"
+             autocomplete="username" autocapitalize="none" spellcheck="false"
+             required autofocus>
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password"
+             autocomplete="current-password" required>
+    </div>
+    <div class="field-aside"><a href="/forgot-password">Forgot Password?</a></div>
+    <button class="primary wide" type="submit">Sign in</button>
+  </form>
+
+  <div class="auth-alt">
+    No account yet? <a href="/signup">Create an operator account</a>
+  </div>
+
+  <div class="auth-legal">
+    CyberShield scans only targets that have been explicitly authorized, and
+    refuses everything else. Nothing is scanned because it happens to be
+    reachable. Passwords are stored as bcrypt hashes and are never logged.
+  </div>
+</div>
+
+</body>
+</html>

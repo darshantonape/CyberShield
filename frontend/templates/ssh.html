@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}SSH channel · CyberShield{% endblock %}
+{% block heading %}SSH management channel{% endblock %}
+{% block subheading %}What makes remediation reversible{% endblock %}
+{% block content %}
+
+<div class="note">
+  <strong>Why remediation needs SSH.</strong>
+  CyberShield's only remediation action is a firewall rule on a laboratory
+  target, and that action is only acceptable because it can be
+  <em>undone</em>. Undoing it means running the stored rollback command on the
+  target, which happens over SSH. A management channel that is misconfigured or
+  unreachable therefore turns a reversible action into a rule that sits on the
+  target until its TTL expires. Check it here <em>before</em> approving
+  anything.
+</div>
+
+<div class="note">
+  <strong>What is never shown or logged.</strong>
+  Private keys and passwords. This page reports only the key's
+  <em>path</em>, whether the file exists, and its permission bits — never its
+  contents and never a fingerprint. Password authentication is not implemented
+  at all: <code>allow_agent</code> and <code>look_for_keys</code> are both
+  disabled, so only the one configured key is ever offered.
+</div>
+
+{% if message %}<div class="note ok">{{ message }}</div>{% endif %}
+{% if error %}
+  <div class="note danger">
+    <strong>{{ error.title }}</strong> {{ error.message }}
+    {% if error.hint %}<span class="hint">{{ error.hint }}</span>{% endif %}
+  </div>
+{% endif %}
+
+<div class="panel flush">
+  <h2>Configured channels</h2>
+  <div class="scroll">
+    {% if channels %}
+    <table>
+      <tr><th>Scope entry</th><th>Range</th><th>Remediable</th><th>User</th>
+          <th class="num">Port</th><th>Key</th><th>Status</th></tr>
+      {% for c in channels %}
+      <tr>
+        <td>{{ c.name }}</td>
+        <td class="mono">{{ c.cidr }}</td>
+        <td>
+          {% if c.is_lab %}<span class="badge pill-lab">lab</span>
+          {% else %}<span class="badge pill-assess">assess only</span>{% endif %}
+        </td>
+        <td class="mono">{{ c.user or '—' }}</td>
+        <td class="num mono">{{ c.port }}</td>
+        <td>
+          {% if not c.is_lab %}
+            <span class="faint">not used</span>
+          {% elif c.key_present and not c.key_too_open %}
+            <span class="badge conf-HIGH">present {{ c.key_permissions }}</span>
+          {% elif c.key_present and c.key_too_open %}
+            <span class="badge sev-CRITICAL">permissions {{ c.key_permissions }}</span>
+          {% else %}
+            <span class="badge sev-CRITICAL">missing</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if c.configured %}
+            <span class="badge conf-HIGH">ready</span>
+          {% elif not c.is_lab %}
+            <span class="badge conf-LOW">n/a</span>
+          {% else %}
+            <span class="badge sev-CRITICAL">not usable</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% if c.problems %}
+      <tr>
+        <td></td>
+        <td colspan="6" class="caveat">
+          {% for problem in c.problems %}• {{ problem }}<br>{% endfor %}
+        </td>
+      </tr>
+      {% endif %}
+      {% if c.is_lab and c.key_path %}
+      <tr>
+        <td></td>
+        <td colspan="6" class="caveat">
+          Key path: <code>{{ c.key_path }}</code> — path only; the key itself is
+          never read into the interface or the logs.
+        </td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+    </table>
+    {% else %}
+    <div class="empty">
+      <span class="big">No authorized targets configured</span>
+      Add one on the <a href="/targets">Targets</a> page.
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Test a channel</h2>
+  <div class="body">
+    {% if lab_hosts %}
+    <form method="post" action="/ssh/test">
+      <div class="row">
+        <div class="field">
+          <label for="address">Laboratory host</label>
+          <select id="address" name="address">
+            {% for host in lab_hosts %}<option value="{{ host }}">{{ host }}</option>{% endfor %}
+          </select>
+          <div class="help">
+            Only hosts inside an <code>is_lab</code> range are offered, and the
+            address is re-validated against the authorized scope before a socket
+            is opened.
+          </div>
+        </div>
+        <div class="actions"><button class="primary" type="submit">Test connection</button></div>
+      </div>
+    </form>
+    <p class="caveat">
+      The test opens a key-authenticated session and runs <code>true</code> —
+      one fixed command that changes nothing. There is no field through which a
+      command could be supplied. Success, authentication failure and timeout are
+      each reported distinctly, and the attempt is recorded in the audit log as
+      <code>ssh.test</code>.
+    </p>
+    {% else %}
+    <div class="empty">
+      <span class="big">No laboratory hosts to test</span>
+      Run an assessment scan of the laboratory range first — the list is built
+      from hosts actually discovered inside an <code>is_lab</code> range.
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Protected ports</h2>
+  <div class="body">
+    <table>
+      <tr><th>Port</th><th>Reason</th></tr>
+      {% for p in safety.protected_ports %}
+      <tr><td class="mono">{{ p.proto }}/{{ p.port }}</td><td class="caveat">{{ p.reason }}</td></tr>
+      {% endfor %}
+    </table>
+    <p class="caveat" style="margin-top:10px">
+      The management port is protected twice over: once by this list, and again
+      by an independent check that protects whichever port CyberShield is
+      <em>actually</em> using to reach a target — so a target administered on a
+      non-standard port is still safe even if that port is not listed here.
+      Isolating the channel you would need for rollback is the one failure this
+      design refuses to allow.
+    </p>
+  </div>
+</div>
+
+{% endblock %}

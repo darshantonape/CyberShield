@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Reports · CyberShield{% endblock %}
+{% block heading %}Assessment reports{% endblock %}
+{% block subheading %}Generate a professional report for any assessment scan{% endblock %}
+{% block content %}
+
+<div class="panel flush">
+  <h2>Assessment scans</h2>
+  <div class="scroll">
+    {% if scans %}
+    <table>
+      <tr><th>Session</th><th>Target</th><th>Status</th><th>Reachability</th>
+          <th class="num">Hosts</th><th class="num">Open svc.</th><th>Started</th><th>Report</th></tr>
+      {% for s in scans %}
+      <tr>
+        <td><a class="mono" href="/scans/{{ s.session_id }}">{{ s.session_id[:12] }}</a></td>
+        <td class="mono">{{ s.target }}</td>
+        <td>
+          {% if s.status == 'completed' %}<span class="badge conf-HIGH">completed</span>
+          {% elif s.status == 'completed_with_timeouts' %}<span class="badge sev-MEDIUM">partial</span>
+          {% elif s.status == 'completed_unreachable' %}<span class="badge sev-MEDIUM">unreachable</span>
+          {% elif s.status == 'failed' %}<span class="badge sev-CRITICAL">failed</span>
+          {% else %}<span class="badge conf-LOW">{{ s.status }}</span>{% endif %}
+        </td>
+        <td>{% if s.reachability %}<span class="reach {{ s.reachability }}">{{ s.reachability }}</span>{% else %}<span class="faint">—</span>{% endif %}</td>
+        <td class="num">{{ s.hosts_up if s.hosts_up is not none else '—' }}</td>
+        <td class="num">{{ s.open_services if s.open_services is not none else '—' }}</td>
+        <td class="muted">{{ s.started_at.strftime('%Y-%m-%d %H:%M') if s.started_at }}</td>
+        <td>
+          <a class="btn" href="/reports/{{ s.session_id }}">View</a>
+          <a class="btn" href="/reports/{{ s.session_id }}/pdf">PDF</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <div class="empty">
+      <span class="big">No assessment scans yet</span>
+      Run a service-detection scan from <a href="/scans">Scans</a>, then return here
+      to generate its report.
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<p class="caveat">
+  A report assembles only what was actually observed and stored. A scan that
+  failed, could not reach its target, or has not been correlated against NVD is
+  reported as such — never as a clean result.
+</p>
+
+{% endblock %}

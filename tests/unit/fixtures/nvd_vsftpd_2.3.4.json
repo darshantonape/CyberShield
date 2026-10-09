@@ -1,0 +1,644 @@
+{
+ "format": "NVD_CVE",
+ "resultsPerPage": 3,
+ "startIndex": 0,
+ "timestamp": "2026-08-30T15:28:47.047",
+ "totalResults": 3,
+ "version": "2.0",
+ "vulnerabilities": [
+  {
+   "cve": {
+    "affected": [
+     {
+      "affectedData": [
+       {
+        "product": "n/a",
+        "vendor": "n/a",
+        "versions": [
+         {
+          "status": "affected",
+          "version": "n/a"
+         }
+        ]
+       }
+      ],
+      "source": "cve@mitre.org"
+     }
+    ],
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:o:opensuse:opensuse:13.1:*:*:*:*:*:*:*",
+          "matchCriteriaId": "A10BC294-9196-425F-9FB0-B1625465B47F",
+          "vulnerable": true
+         },
+         {
+          "criteria": "cpe:2.3:o:opensuse:opensuse:13.2:*:*:*:*:*:*:*",
+          "matchCriteriaId": "03117DF1-3BEC-4B8D-AD63-DBBDB2126081",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ]
+     },
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:a:vsftpd_project:vsftpd:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "CCFACE45-9139-4443-9EFD-BE77866BD6E9",
+          "versionEndIncluding": "3.0.2",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ]
+     }
+    ],
+    "cveTags": [],
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "Unspecified vulnerability in vsftpd 3.0.2 and earlier allows remote attackers to bypass access restrictions via unknown vectors, related to deny_file parsing."
+     },
+     {
+      "lang": "es",
+      "value": "Una vulnerabilidad no especificada en vsftpd versiones 3.0.2 y anteriores permite a los atacantes remotos omitir las restricciones de acceso por medio de vectores desconocidos, relacionados con el an\u00e1lisis deny_file."
+     }
+    ],
+    "id": "CVE-2015-1419",
+    "lastModified": "2026-06-17T00:22:23.320",
+    "metrics": {
+     "cvssMetricV2": [
+      {
+       "acInsufInfo": false,
+       "baseSeverity": "MEDIUM",
+       "cvssData": {
+        "accessComplexity": "LOW",
+        "accessVector": "NETWORK",
+        "authentication": "NONE",
+        "availabilityImpact": "NONE",
+        "baseScore": 5.0,
+        "confidentialityImpact": "NONE",
+        "integrityImpact": "PARTIAL",
+        "vectorString": "AV:N/AC:L/Au:N/C:N/I:P/A:N",
+        "version": "2.0"
+       },
+       "exploitabilityScore": 10.0,
+       "impactScore": 2.9,
+       "obtainAllPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "obtainUserPrivilege": false,
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "userInteractionRequired": false
+      }
+     ]
+    },
+    "published": "2015-01-28T11:59:08.417",
+    "references": [
+     {
+      "source": "cve@mitre.org",
+      "tags": [
+       "Patch",
+       "Vendor Advisory"
+      ],
+      "url": "http://lists.opensuse.org/opensuse-security-announce/2015-01/msg00023.html"
+     },
+     {
+      "source": "cve@mitre.org",
+      "tags": [
+       "Vendor Advisory"
+      ],
+      "url": "http://lists.opensuse.org/opensuse-updates/2015-01/msg00041.html"
+     },
+     {
+      "source": "cve@mitre.org",
+      "tags": [
+       "Broken Link"
+      ],
+      "url": "http://secunia.com/advisories/62415"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Patch",
+       "Vendor Advisory"
+      ],
+      "url": "http://lists.opensuse.org/opensuse-security-announce/2015-01/msg00023.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Vendor Advisory"
+      ],
+      "url": "http://lists.opensuse.org/opensuse-updates/2015-01/msg00041.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Broken Link"
+      ],
+      "url": "http://secunia.com/advisories/62415"
+     }
+    ],
+    "sourceIdentifier": "cve@mitre.org",
+    "vulnStatus": "Modified",
+    "weaknesses": [
+     {
+      "description": [
+       {
+        "lang": "en",
+        "value": "NVD-CWE-noinfo"
+       }
+      ],
+      "source": "nvd@nist.gov",
+      "type": "Primary"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "affected": [
+     {
+      "affectedData": [
+       {
+        "product": "vsftpd",
+        "vendor": "vsftpd",
+        "versions": [
+         {
+          "status": "affected",
+          "version": "2.3.4 downloaded between 20110630 and 20110703"
+         }
+        ]
+       }
+      ],
+      "source": "secalert@redhat.com"
+     }
+    ],
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:a:vsftpd_project:vsftpd:2.3.4:*:*:*:*:*:*:*",
+          "matchCriteriaId": "9D883DD6-4A93-41A2-84F6-515C44804FF8",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ]
+     },
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:o:debian:debian_linux:8.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "C11E6FB0-C8C0-4527-9AA0-CB9B316F8F43",
+          "vulnerable": true
+         },
+         {
+          "criteria": "cpe:2.3:o:debian:debian_linux:9.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "DEECE5FC-CACF-4496-A3E7-164736409252",
+          "vulnerable": true
+         },
+         {
+          "criteria": "cpe:2.3:o:debian:debian_linux:10.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "07B237A9-69A3-4A9C-9DA0-4E06BD37AE73",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ]
+     }
+    ],
+    "cveTags": [],
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "vsftpd 2.3.4 downloaded between 20110630 and 20110703 contains a backdoor which opens a shell on port 6200/tcp."
+     },
+     {
+      "lang": "es",
+      "value": "vsftpd versi\u00f3n 2.3.4 descargado entre 20110630 y 20110703, contiene una puerta trasera (backdoor) que abre un shell en el puerto 6200/tcp."
+     }
+    ],
+    "id": "CVE-2011-2523",
+    "lastModified": "2026-06-16T23:31:30.717",
+    "metrics": {
+     "cvssMetricV2": [
+      {
+       "acInsufInfo": false,
+       "baseSeverity": "HIGH",
+       "cvssData": {
+        "accessComplexity": "LOW",
+        "accessVector": "NETWORK",
+        "authentication": "NONE",
+        "availabilityImpact": "COMPLETE",
+        "baseScore": 10.0,
+        "confidentialityImpact": "COMPLETE",
+        "integrityImpact": "COMPLETE",
+        "vectorString": "AV:N/AC:L/Au:N/C:C/I:C/A:C",
+        "version": "2.0"
+       },
+       "exploitabilityScore": 10.0,
+       "impactScore": 10.0,
+       "obtainAllPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "obtainUserPrivilege": false,
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "userInteractionRequired": false
+      }
+     ],
+     "cvssMetricV31": [
+      {
+       "cvssData": {
+        "attackComplexity": "LOW",
+        "attackVector": "NETWORK",
+        "availabilityImpact": "HIGH",
+        "baseScore": 9.8,
+        "baseSeverity": "CRITICAL",
+        "confidentialityImpact": "HIGH",
+        "integrityImpact": "HIGH",
+        "privilegesRequired": "NONE",
+        "scope": "UNCHANGED",
+        "userInteraction": "NONE",
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        "version": "3.1"
+       },
+       "exploitabilityScore": 3.9,
+       "impactScore": 5.9,
+       "source": "nvd@nist.gov",
+       "type": "Primary"
+      }
+     ]
+    },
+    "published": "2019-11-27T21:15:12.387",
+    "references": [
+     {
+      "source": "secalert@redhat.com",
+      "url": "http://packetstormsecurity.com/files/162145/vsftpd-2.3.4-Backdoor-Command-Execution.html"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://access.redhat.com/security/cve/cve-2011-2523"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "https://packetstormsecurity.com/files/102745/VSFTPD-2.3.4-Backdoor-Command-Execution.html"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://security-tracker.debian.org/tracker/CVE-2011-2523"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://vigilance.fr/vulnerability/vsftpd-backdoor-in-version-2-3-4-10805"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "https://www.openwall.com/lists/oss-security/2011/07/11/5"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "url": "http://packetstormsecurity.com/files/162145/vsftpd-2.3.4-Backdoor-Command-Execution.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://access.redhat.com/security/cve/cve-2011-2523"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "https://packetstormsecurity.com/files/102745/VSFTPD-2.3.4-Backdoor-Command-Execution.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://security-tracker.debian.org/tracker/CVE-2011-2523"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://vigilance.fr/vulnerability/vsftpd-backdoor-in-version-2-3-4-10805"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "https://www.openwall.com/lists/oss-security/2011/07/11/5"
+     }
+    ],
+    "sourceIdentifier": "secalert@redhat.com",
+    "vulnStatus": "Modified",
+    "weaknesses": [
+     {
+      "description": [
+       {
+        "lang": "en",
+        "value": "CWE-78"
+       }
+      ],
+      "source": "nvd@nist.gov",
+      "type": "Primary"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "affected": [
+     {
+      "affectedData": [
+       {
+        "product": "ALPACA",
+        "vendor": "n/a",
+        "versions": [
+         {
+          "status": "affected",
+          "version": "vsftpd 3.0.4, nginx 1.21.0, sendmail 8.17"
+         }
+        ]
+       }
+      ],
+      "source": "secalert@redhat.com"
+     }
+    ],
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:a:f5:nginx:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "777D8DB3-65CF-4A12-BCCE-30849CE07762",
+          "versionEndExcluding": "1.21.0",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ]
+     },
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:a:sendmail:sendmail:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "2E5DF525-823F-49D0-BDD2-6BCE5EE0F66B",
+          "versionEndExcluding": "8.17",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ]
+     },
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:a:vsftpd_project:vsftpd:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "CA84E5A7-7557-4805-902B-E8069F5F4091",
+          "versionEndExcluding": "3.0.4",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ]
+     },
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:o:fedoraproject:fedora:33:*:*:*:*:*:*:*",
+          "matchCriteriaId": "E460AA51-FCDA-46B9-AE97-E6676AA5E194",
+          "vulnerable": true
+         },
+         {
+          "criteria": "cpe:2.3:o:fedoraproject:fedora:34:*:*:*:*:*:*:*",
+          "matchCriteriaId": "A930E247-0B43-43CB-98FF-6CE7B8189835",
+          "vulnerable": true
+         },
+         {
+          "criteria": "cpe:2.3:o:fedoraproject:fedora:35:*:*:*:*:*:*:*",
+          "matchCriteriaId": "80E516C0-98A4-4ADE-B69F-66A772E2BAAA",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ]
+     },
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:o:debian:debian_linux:10.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "07B237A9-69A3-4A9C-9DA0-4E06BD37AE73",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ]
+     }
+    ],
+    "cveTags": [],
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "ALPACA is an application layer protocol content confusion attack, exploiting TLS servers implementing different protocols but using compatible certificates, such as multi-domain or wildcard certificates. A MiTM attacker having access to victim's traffic at the TCP/IP layer can redirect traffic from one subdomain to another, resulting in a valid TLS session. This breaks the authentication of TLS and cross-protocol attacks may be possible where the behavior of one protocol service may compromise the other at the application layer."
+     },
+     {
+      "lang": "es",
+      "value": "ALPACA es un ataque de confusi\u00f3n de contenido de protocolo de capa de aplicaci\u00f3n, que explota servidores TLS que implementan diferentes protocolos pero que usan certificados compatibles, como certificados multidominio o comod\u00edn. Un atacante de tipo MiTM que tenga acceso al tr\u00e1fico de la v\u00edctima en la capa TCP/IP puede redirigir el tr\u00e1fico de un subdominio a otro, resultando en a una sesi\u00f3n TLS v\u00e1lida. Esto rompe la autenticaci\u00f3n de TLS y pueden ser posibles los ataques entre protocolos donde el comportamiento de un servicio de protocolo puede comprometer al otro en la capa de aplicaci\u00f3n"
+     }
+    ],
+    "id": "CVE-2021-3618",
+    "lastModified": "2026-06-17T04:05:27.083",
+    "metrics": {
+     "cvssMetricV2": [
+      {
+       "acInsufInfo": false,
+       "baseSeverity": "MEDIUM",
+       "cvssData": {
+        "accessComplexity": "MEDIUM",
+        "accessVector": "NETWORK",
+        "authentication": "NONE",
+        "availabilityImpact": "NONE",
+        "baseScore": 5.8,
+        "confidentialityImpact": "PARTIAL",
+        "integrityImpact": "PARTIAL",
+        "vectorString": "AV:N/AC:M/Au:N/C:P/I:P/A:N",
+        "version": "2.0"
+       },
+       "exploitabilityScore": 8.6,
+       "impactScore": 4.9,
+       "obtainAllPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "obtainUserPrivilege": false,
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "userInteractionRequired": false
+      }
+     ],
+     "cvssMetricV31": [
+      {
+       "cvssData": {
+        "attackComplexity": "HIGH",
+        "attackVector": "NETWORK",
+        "availabilityImpact": "NONE",
+        "baseScore": 7.4,
+        "baseSeverity": "HIGH",
+        "confidentialityImpact": "HIGH",
+        "integrityImpact": "HIGH",
+        "privilegesRequired": "NONE",
+        "scope": "UNCHANGED",
+        "userInteraction": "NONE",
+        "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+        "version": "3.1"
+       },
+       "exploitabilityScore": 2.2,
+       "impactScore": 5.2,
+       "source": "nvd@nist.gov",
+       "type": "Primary"
+      }
+     ]
+    },
+    "published": "2022-03-23T20:15:09.833",
+    "references": [
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://alpaca-attack.com/"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Issue Tracking",
+       "Patch",
+       "Third Party Advisory"
+      ],
+      "url": "https://bugzilla.redhat.com/show_bug.cgi?id=1975623"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "https://lists.debian.org/debian-lts-announce/2022/11/msg00031.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://alpaca-attack.com/"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Issue Tracking",
+       "Patch",
+       "Third Party Advisory"
+      ],
+      "url": "https://bugzilla.redhat.com/show_bug.cgi?id=1975623"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "https://lists.debian.org/debian-lts-announce/2022/11/msg00031.html"
+     }
+    ],
+    "sourceIdentifier": "secalert@redhat.com",
+    "vulnStatus": "Modified",
+    "weaknesses": [
+     {
+      "description": [
+       {
+        "lang": "en",
+        "value": "CWE-295"
+       }
+      ],
+      "source": "secalert@redhat.com",
+      "type": "Secondary"
+     },
+     {
+      "description": [
+       {
+        "lang": "en",
+        "value": "CWE-295"
+       }
+      ],
+      "source": "nvd@nist.gov",
+      "type": "Secondary"
+     }
+    ]
+   }
+  }
+ ]
+}

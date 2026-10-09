@@ -1,0 +1,2152 @@
+{
+ "format": "NVD_CVE",
+ "resultsPerPage": 81,
+ "startIndex": 0,
+ "timestamp": "2026-08-30T15:28:24.795",
+ "totalResults": 81,
+ "version": "2.0",
+ "vulnerabilities": [
+  {
+   "cve": {
+    "affected": [
+     {
+      "affectedData": [
+       {
+        "product": "n/a",
+        "vendor": "n/a",
+        "versions": [
+         {
+          "status": "affected",
+          "version": "n/a"
+         }
+        ]
+       }
+      ],
+      "source": "cve@mitre.org"
+     }
+    ],
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:a:ragnarok_online_control_panel_project:ragnarok_online_control_panel:4.3.4a:*:*:*:*:*:*:*",
+          "matchCriteriaId": "12F2E1BB-7D48-4816-85B2-6E6AF67B5A44",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       },
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "5A6CD1F4-4C0E-4989-A2B3-DC086E8E80A3",
+          "vulnerable": false
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ],
+      "operator": "AND"
+     }
+    ],
+    "cveTags": [],
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "Directory traversal vulnerability in Ragnarok Online Control Panel 4.3.4a, when the Apache HTTP Server is used, allows remote attackers to bypass authentication via directory traversal sequences in a URI that ends with the name of a publicly available page, as demonstrated by a \"/...../\" sequence and an account_manage.php/login.php final component for reaching the protected account_manage.php page."
+     },
+     {
+      "lang": "es",
+      "value": "Vulnerabilidad de salto de directorio en Ragnarok Online Control Panel 4.3.4a, cuando se utiliza Apache HTTP Server, permite a atacantes remotos evitar la autenticaci\u00f3n mediante secuencias de salto de directorio en un URI que termina con el nombre de una p\u00e1gina p\u00fablicamente disponible, como ha sido demostrado por la secuencia \"/...../\" y un componente final account_manage.php/login.php para acceder a la p\u00e1gina protegida account_manage.php."
+     }
+    ],
+    "id": "CVE-2007-4723",
+    "lastModified": "2026-06-16T22:44:39.380",
+    "metrics": {
+     "cvssMetricV2": [
+      {
+       "acInsufInfo": false,
+       "baseSeverity": "HIGH",
+       "cvssData": {
+        "accessComplexity": "LOW",
+        "accessVector": "NETWORK",
+        "authentication": "NONE",
+        "availabilityImpact": "PARTIAL",
+        "baseScore": 7.5,
+        "confidentialityImpact": "PARTIAL",
+        "integrityImpact": "PARTIAL",
+        "vectorString": "AV:N/AC:L/Au:N/C:P/I:P/A:P",
+        "version": "2.0"
+       },
+       "exploitabilityScore": 10.0,
+       "impactScore": 6.4,
+       "obtainAllPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "obtainUserPrivilege": false,
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "userInteractionRequired": false
+      }
+     ]
+    },
+    "published": "2007-09-05T19:17:00.000",
+    "references": [
+     {
+      "source": "cve@mitre.org",
+      "tags": [
+       "Broken Link"
+      ],
+      "url": "http://osvdb.org/45879"
+     },
+     {
+      "source": "cve@mitre.org",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "http://securityreason.com/securityalert/3100"
+     },
+     {
+      "source": "cve@mitre.org",
+      "tags": [
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://www.securityfocus.com/archive/1/478263/100/0/threaded"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Broken Link"
+      ],
+      "url": "http://osvdb.org/45879"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "http://securityreason.com/securityalert/3100"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://www.securityfocus.com/archive/1/478263/100/0/threaded"
+     }
+    ],
+    "sourceIdentifier": "cve@mitre.org",
+    "vulnStatus": "Modified",
+    "weaknesses": [
+     {
+      "description": [
+       {
+        "lang": "en",
+        "value": "CWE-22"
+       }
+      ],
+      "source": "nvd@nist.gov",
+      "type": "Primary"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "affected": [
+     {
+      "affectedData": [
+       {
+        "product": "n/a",
+        "vendor": "n/a",
+        "versions": [
+         {
+          "status": "affected",
+          "version": "n/a"
+         }
+        ]
+       }
+      ],
+      "source": "secalert@redhat.com"
+     }
+    ],
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:a:apache:mod_perl:1:*:*:*:*:*:*:*",
+          "matchCriteriaId": "D7612B6F-0CBF-4866-8293-37EF407C7BD0",
+          "vulnerable": true
+         },
+         {
+          "criteria": "cpe:2.3:a:apache:mod_perl:2:*:*:*:*:*:*:*",
+          "matchCriteriaId": "B8639339-6C55-43A0-BCF1-56C75A6CA19B",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       },
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "5A6CD1F4-4C0E-4989-A2B3-DC086E8E80A3",
+          "vulnerable": false
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ],
+      "operator": "AND"
+     }
+    ],
+    "cveTags": [],
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "Cross-site scripting (XSS) vulnerability in Status.pm in Apache::Status and Apache2::Status in mod_perl1 and mod_perl2 for the Apache HTTP Server, when /perl-status is accessible, allows remote attackers to inject arbitrary web script or HTML via the URI."
+     },
+     {
+      "lang": "es",
+      "value": "Vulnerabilidad de secuencias de comandos en sitios cruzados (XSS) en Status.pm en Apache::Status y Apache2::Status en mod_perl1 y mod_perl2 para Apache HTTP Server, cuando /perl-status esta accesible, permite a atacantes remotos inyectar c\u00f3digo web o HTML de modo arbitrario a trav\u00e9s de la URI."
+     }
+    ],
+    "id": "CVE-2009-0796",
+    "lastModified": "2026-06-16T23:05:49.967",
+    "metrics": {
+     "cvssMetricV2": [
+      {
+       "acInsufInfo": false,
+       "baseSeverity": "LOW",
+       "cvssData": {
+        "accessComplexity": "HIGH",
+        "accessVector": "NETWORK",
+        "authentication": "NONE",
+        "availabilityImpact": "NONE",
+        "baseScore": 2.6,
+        "confidentialityImpact": "NONE",
+        "integrityImpact": "PARTIAL",
+        "vectorString": "AV:N/AC:H/Au:N/C:N/I:P/A:N",
+        "version": "2.0"
+       },
+       "exploitabilityScore": 4.9,
+       "impactScore": 2.9,
+       "obtainAllPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "obtainUserPrivilege": false,
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "userInteractionRequired": false
+      }
+     ]
+    },
+    "published": "2009-04-07T23:30:00.233",
+    "references": [
+     {
+      "source": "secalert@redhat.com",
+      "url": "http://lists.apple.com/archives/security-announce/2010//Nov/msg00000.html"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "url": "http://secunia.com/advisories/34597"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "url": "http://sunsolve.sun.com/search/document.do?assetkey=1-77-1021508.1-1"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "url": "http://sunsolve.sun.com/search/document.do?assetkey=1-77-1021709.1-1"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "url": "http://support.apple.com/kb/HT4435"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "url": "http://svn.apache.org/viewvc/perl/modperl/branches/1.x/lib/Apache/Status.pm?r1=177851&r2=761081&pathrev=761081&diff_format=h"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Patch",
+       "Vendor Advisory"
+      ],
+      "url": "http://svn.apache.org/viewvc?view=rev&revision=761081"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Exploit"
+      ],
+      "url": "http://www.gossamer-threads.com/lists/modperl/modperl-cvs/99477#99477"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Exploit"
+      ],
+      "url": "http://www.gossamer-threads.com/lists/modperl/modperl/99475#99475"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "url": "http://www.mandriva.com/security/advisories?name=MDVSA-2009:091"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "url": "http://www.securityfocus.com/archive/1/502709/100/0/threaded"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "url": "http://www.securityfocus.com/bid/34383"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "url": "http://www.securitytracker.com/id?1021988"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "url": "http://www.vupen.com/english/advisories/2009/0943"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "url": "https://bugzilla.redhat.com/show_bug.cgi?id=494402"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "url": "https://launchpad.net/bugs/cve/2009-0796"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "url": "https://oval.cisecurity.org/repository/search/definition/oval%3Aorg.mitre.oval%3Adef%3A8488"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "url": "http://lists.apple.com/archives/security-announce/2010//Nov/msg00000.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "url": "http://secunia.com/advisories/34597"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "url": "http://sunsolve.sun.com/search/document.do?assetkey=1-77-1021508.1-1"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "url": "http://sunsolve.sun.com/search/document.do?assetkey=1-77-1021709.1-1"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "url": "http://support.apple.com/kb/HT4435"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "url": "http://svn.apache.org/viewvc/perl/modperl/branches/1.x/lib/Apache/Status.pm?r1=177851&r2=761081&pathrev=761081&diff_format=h"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Patch",
+       "Vendor Advisory"
+      ],
+      "url": "http://svn.apache.org/viewvc?view=rev&revision=761081"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Exploit"
+      ],
+      "url": "http://www.gossamer-threads.com/lists/modperl/modperl-cvs/99477#99477"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Exploit"
+      ],
+      "url": "http://www.gossamer-threads.com/lists/modperl/modperl/99475#99475"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "url": "http://www.mandriva.com/security/advisories?name=MDVSA-2009:091"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "url": "http://www.securityfocus.com/archive/1/502709/100/0/threaded"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "url": "http://www.securityfocus.com/bid/34383"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "url": "http://www.securitytracker.com/id?1021988"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "url": "http://www.vupen.com/english/advisories/2009/0943"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "url": "https://bugzilla.redhat.com/show_bug.cgi?id=494402"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "url": "https://launchpad.net/bugs/cve/2009-0796"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "url": "https://oval.cisecurity.org/repository/search/definition/oval%3Aorg.mitre.oval%3Adef%3A8488"
+     }
+    ],
+    "sourceIdentifier": "secalert@redhat.com",
+    "vendorComments": [
+     {
+      "comment": "Red Hat is aware of this issue and is tracking it via the following bug: https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=CVE-2009-0796\n\nThe Red Hat Security Response Team has rated this issue as having moderate security impact, a future mod_perl package update may address this flaw. More information regarding issue severity can be found here: http://www.redhat.com/security/updates/classification/",
+      "lastModified": "2009-06-11T00:00:00",
+      "organization": "Red Hat"
+     }
+    ],
+    "vulnStatus": "Modified",
+    "weaknesses": [
+     {
+      "description": [
+       {
+        "lang": "en",
+        "value": "CWE-79"
+       }
+      ],
+      "source": "nvd@nist.gov",
+      "type": "Primary"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "affected": [
+     {
+      "affectedData": [
+       {
+        "product": "n/a",
+        "vendor": "n/a",
+        "versions": [
+         {
+          "status": "affected",
+          "version": "n/a"
+         }
+        ]
+       }
+      ],
+      "source": "secalert@redhat.com"
+     }
+    ],
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:a:mod_authnz_external_project:mod_authnz_external:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "350DFCA6-8309-4D4B-AA24-2330FE58FFA1",
+          "versionEndIncluding": "3.2.5",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       },
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:a:apache:http_server:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "5A6CD1F4-4C0E-4989-A2B3-DC086E8E80A3",
+          "vulnerable": false
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ],
+      "operator": "AND"
+     },
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:o:debian:debian_linux:5.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "8C757774-08E7-40AA-B532-6F705C8F7639",
+          "vulnerable": true
+         },
+         {
+          "criteria": "cpe:2.3:o:debian:debian_linux:6.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "036E8A89-7A16-411F-9D31-676313BB7244",
+          "vulnerable": true
+         },
+         {
+          "criteria": "cpe:2.3:o:debian:debian_linux:7.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "16F59A04-14CF-49E2-9973-645477EA09DA",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ]
+     }
+    ],
+    "cveTags": [],
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "SQL injection vulnerability in mysql/mysql-auth.pl in the mod_authnz_external module 3.2.5 and earlier for the Apache HTTP Server allows remote attackers to execute arbitrary SQL commands via the user field."
+     },
+     {
+      "lang": "es",
+      "value": "Vulnerabilidad de inyecci\u00f3n SQL en mysql/mysql-auth.pl en el m\u00f3dulo de mod_authnz_external v3.2.5 y anteriores para Apache HTTP Server, permite a atacantes remotos ejecutar comandos SQL a trav\u00e9s del campo de usuario."
+     }
+    ],
+    "id": "CVE-2011-2688",
+    "lastModified": "2026-06-16T23:31:47.983",
+    "metrics": {
+     "cvssMetricV2": [
+      {
+       "acInsufInfo": false,
+       "baseSeverity": "HIGH",
+       "cvssData": {
+        "accessComplexity": "LOW",
+        "accessVector": "NETWORK",
+        "authentication": "NONE",
+        "availabilityImpact": "PARTIAL",
+        "baseScore": 7.5,
+        "confidentialityImpact": "PARTIAL",
+        "integrityImpact": "PARTIAL",
+        "vectorString": "AV:N/AC:L/Au:N/C:P/I:P/A:P",
+        "version": "2.0"
+       },
+       "exploitabilityScore": 10.0,
+       "impactScore": 6.4,
+       "obtainAllPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "obtainUserPrivilege": false,
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "userInteractionRequired": false
+      }
+     ]
+    },
+    "published": "2011-07-28T18:55:02.750",
+    "references": [
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "http://anders.fix.no/software/#unix"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Issue Tracking",
+       "Patch",
+       "Third Party Advisory"
+      ],
+      "url": "http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=633637"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "http://code.google.com/p/mod-auth-external/issues/detail?id=5"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "http://secunia.com/advisories/45240"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "http://www.debian.org/security/2011/dsa-2279"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Mailing List",
+       "Patch",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2011/07/12/10"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Mailing List",
+       "Patch",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2011/07/12/17"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://www.securityfocus.com/bid/48653"
+     },
+     {
+      "source": "secalert@redhat.com",
+      "tags": [
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "https://exchange.xforce.ibmcloud.com/vulnerabilities/68799"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "http://anders.fix.no/software/#unix"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Issue Tracking",
+       "Patch",
+       "Third Party Advisory"
+      ],
+      "url": "http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=633637"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "http://code.google.com/p/mod-auth-external/issues/detail?id=5"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "http://secunia.com/advisories/45240"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "http://www.debian.org/security/2011/dsa-2279"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Patch",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2011/07/12/10"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Patch",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2011/07/12/17"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://www.securityfocus.com/bid/48653"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "https://exchange.xforce.ibmcloud.com/vulnerabilities/68799"
+     }
+    ],
+    "sourceIdentifier": "secalert@redhat.com",
+    "vulnStatus": "Modified",
+    "weaknesses": [
+     {
+      "description": [
+       {
+        "lang": "en",
+        "value": "CWE-89"
+       }
+      ],
+      "source": "nvd@nist.gov",
+      "type": "Primary"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "affected": [
+     {
+      "affectedData": [
+       {
+        "product": "Apache HTTP Server",
+        "vendor": "Apache Software Foundation",
+        "versions": [
+         {
+          "status": "affected",
+          "version": "Apache HTTP Server 2.4 2.4.49"
+         }
+        ]
+       }
+      ],
+      "source": "security@apache.org"
+     }
+    ],
+    "cisaActionDue": "2021-11-17",
+    "cisaExploitAdd": "2021-11-03",
+    "cisaRequiredAction": "Apply updates per vendor instructions.",
+    "cisaVulnerabilityName": "Apache HTTP Server Path Traversal Vulnerability",
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:a:apache:http_server:2.4.49:*:*:*:*:*:*:*",
+          "matchCriteriaId": "B201CFB2-F626-4DD0-9F6A-DFE8F64203E2",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ]
+     },
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:o:fedoraproject:fedora:34:*:*:*:*:*:*:*",
+          "matchCriteriaId": "A930E247-0B43-43CB-98FF-6CE7B8189835",
+          "vulnerable": true
+         },
+         {
+          "criteria": "cpe:2.3:o:fedoraproject:fedora:35:*:*:*:*:*:*:*",
+          "matchCriteriaId": "80E516C0-98A4-4ADE-B69F-66A772E2BAAA",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ]
+     },
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:a:oracle:instantis_enterprisetrack:17.1:*:*:*:*:*:*:*",
+          "matchCriteriaId": "82EA4BA7-C38B-4AF3-8914-9E3D089EBDD4",
+          "vulnerable": true
+         },
+         {
+          "criteria": "cpe:2.3:a:oracle:instantis_enterprisetrack:17.2:*:*:*:*:*:*:*",
+          "matchCriteriaId": "B9C9BC66-FA5F-4774-9BDA-7AB88E2839C4",
+          "vulnerable": true
+         },
+         {
+          "criteria": "cpe:2.3:a:oracle:instantis_enterprisetrack:17.3:*:*:*:*:*:*:*",
+          "matchCriteriaId": "7F69B9A5-F21B-4904-9F27-95C0F7A628E3",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ]
+     },
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:a:netapp:cloud_backup:-:*:*:*:*:*:*:*",
+          "matchCriteriaId": "5C2089EE-5D7F-47EC-8EA5-0F69790564C4",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ]
+     }
+    ],
+    "cveTags": [],
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "A flaw was found in a change made to path normalization in Apache HTTP Server 2.4.49. An attacker could use a path traversal attack to map URLs to files outside the directories configured by Alias-like directives. If files outside of these directories are not protected by the usual default configuration \"require all denied\", these requests can succeed. If CGI scripts are also enabled for these aliased pathes, this could allow for remote code execution. This issue is known to be exploited in the wild. This issue only affects Apache 2.4.49 and not earlier versions. The fix in Apache HTTP Server 2.4.50 was found to be incomplete, see CVE-2021-42013."
+     },
+     {
+      "lang": "es",
+      "value": "Se ha encontrado un fallo en un cambio realizado en la normalizaci\u00f3n de rutas en Apache HTTP Server 2.4.49. Un atacante podr\u00eda utilizar un ataque de recorrido para asignar URLs a archivos fuera de los directorios configurados por las directivas tipo Alias. Si los archivos fuera de estos directorios no est\u00e1n protegidos por la configuraci\u00f3n habitual por defecto \"require all denied\", estas peticiones pueden tener \u00e9xito. Si los scripts CGI tambi\u00e9n est\u00e1n habilitados para estas rutas alias, esto podr\u00eda permitir la ejecuci\u00f3n remota de c\u00f3digo. Se sabe que este problema ha sido explotado en la naturaleza. Este problema s\u00f3lo afecta a Apache 2.4.49 y no a versiones anteriores. La correcci\u00f3n en Apache HTTP Server 2.4.50 es incompleta, v\u00e9ase CVE-2021-42013"
+     }
+    ],
+    "id": "CVE-2021-41773",
+    "lastModified": "2026-06-17T04:08:53.933",
+    "metrics": {
+     "cvssMetricV2": [
+      {
+       "acInsufInfo": false,
+       "baseSeverity": "MEDIUM",
+       "cvssData": {
+        "accessComplexity": "MEDIUM",
+        "accessVector": "NETWORK",
+        "authentication": "NONE",
+        "availabilityImpact": "NONE",
+        "baseScore": 4.3,
+        "confidentialityImpact": "PARTIAL",
+        "integrityImpact": "NONE",
+        "vectorString": "AV:N/AC:M/Au:N/C:P/I:N/A:N",
+        "version": "2.0"
+       },
+       "exploitabilityScore": 8.6,
+       "impactScore": 2.9,
+       "obtainAllPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "obtainUserPrivilege": false,
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "userInteractionRequired": false
+      }
+     ],
+     "cvssMetricV31": [
+      {
+       "cvssData": {
+        "attackComplexity": "LOW",
+        "attackVector": "NETWORK",
+        "availabilityImpact": "HIGH",
+        "baseScore": 9.8,
+        "baseSeverity": "CRITICAL",
+        "confidentialityImpact": "HIGH",
+        "integrityImpact": "HIGH",
+        "privilegesRequired": "NONE",
+        "scope": "UNCHANGED",
+        "userInteraction": "NONE",
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        "version": "3.1"
+       },
+       "exploitabilityScore": 3.9,
+       "impactScore": 5.9,
+       "source": "nvd@nist.gov",
+       "type": "Primary"
+      },
+      {
+       "cvssData": {
+        "attackComplexity": "LOW",
+        "attackVector": "NETWORK",
+        "availabilityImpact": "NONE",
+        "baseScore": 7.5,
+        "baseSeverity": "HIGH",
+        "confidentialityImpact": "HIGH",
+        "integrityImpact": "NONE",
+        "privilegesRequired": "NONE",
+        "scope": "UNCHANGED",
+        "userInteraction": "NONE",
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+        "version": "3.1"
+       },
+       "exploitabilityScore": 3.9,
+       "impactScore": 3.6,
+       "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+       "type": "Secondary"
+      }
+     ],
+     "ssvcV203": [
+      {
+       "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+       "ssvcData": {
+        "id": "CVE-2021-41773",
+        "options": [
+         {
+          "exploitation": "active"
+         },
+         {
+          "automatable": "yes"
+         },
+         {
+          "technicalImpact": "total"
+         }
+        ],
+        "role": "CISA Coordinator",
+        "timestamp": "2025-02-04T14:41:10.766482Z",
+        "version": "2.0.3"
+       }
+      }
+     ]
+    },
+    "published": "2021-10-05T09:15:07.593",
+    "references": [
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/164418/Apache-HTTP-Server-2.4.49-Path-Traversal-Remote-Code-Execution.html"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/164418/Apache-HTTP-Server-2.4.49-Path-Traversal.html"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/164629/Apache-2.4.49-2.4.50-Traversal-Remote-Code-Execution.html"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/164941/Apache-HTTP-Server-2.4.50-Remote-Code-Execution.html"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/05/2"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/07/1"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/07/6"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Exploit",
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/1"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/2"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Exploit",
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/3"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/4"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/5"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/6"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/09/1"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Patch",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/11/4"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Patch",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/15/3"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/16/1"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Release Notes",
+       "Vendor Advisory"
+      ],
+      "url": "https://httpd.apache.org/security/vulnerabilities_24.html"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Patch"
+      ],
+      "url": "https://lists.apache.org/thread.html/r17a4c6ce9aff662efd9459e9d1850ab4a611cb23392fc68264c72cb3%40%3Ccvs.httpd.apache.org%3E"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List"
+      ],
+      "url": "https://lists.apache.org/thread.html/r6abf5f2ba6f1aa8b1030f95367aaf17660c4e4c78cb2338aee18982f%40%3Cusers.httpd.apache.org%3E"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List"
+      ],
+      "url": "https://lists.apache.org/thread.html/r7c795cd45a3384d4d27e57618a215b0ed19cb6ca8eb070061ad5d837%40%3Cannounce.apache.org%3E"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List"
+      ],
+      "url": "https://lists.apache.org/thread.html/r98d704ed4377ed889d40479db79ed1ee2f43b2ebdd79ce84b042df45%40%3Cannounce.apache.org%3E"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List"
+      ],
+      "url": "https://lists.apache.org/thread.html/rb5b0e46f179f60b0c70204656bc52fcb558e961cb4d06a971e9e3efb%40%3Cusers.httpd.apache.org%3E"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Release Notes"
+      ],
+      "url": "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/RMIIEFINL6FUIOPD2A3M5XC6DH45Y3CC/"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Release Notes"
+      ],
+      "url": "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/WS5RVHOIIRECG65ZBTZY7IEJVWQSQPG3/"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://security.gentoo.org/glsa/202208-20"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://security.netapp.com/advisory/ntap-20211029-0009/"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-apache-httpd-pathtrv-LAzg68cZ"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Patch",
+       "Third Party Advisory"
+      ],
+      "url": "https://www.oracle.com/security-alerts/cpujan2022.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/164418/Apache-HTTP-Server-2.4.49-Path-Traversal-Remote-Code-Execution.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/164418/Apache-HTTP-Server-2.4.49-Path-Traversal.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/164629/Apache-2.4.49-2.4.50-Traversal-Remote-Code-Execution.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/164941/Apache-HTTP-Server-2.4.50-Remote-Code-Execution.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/05/2"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/07/1"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/07/6"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Exploit",
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/1"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/2"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Exploit",
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/3"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/4"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/5"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/6"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/09/1"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Patch",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/11/4"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Patch",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/15/3"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/16/1"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Release Notes",
+       "Vendor Advisory"
+      ],
+      "url": "https://httpd.apache.org/security/vulnerabilities_24.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Patch"
+      ],
+      "url": "https://lists.apache.org/thread.html/r17a4c6ce9aff662efd9459e9d1850ab4a611cb23392fc68264c72cb3%40%3Ccvs.httpd.apache.org%3E"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List"
+      ],
+      "url": "https://lists.apache.org/thread.html/r6abf5f2ba6f1aa8b1030f95367aaf17660c4e4c78cb2338aee18982f%40%3Cusers.httpd.apache.org%3E"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List"
+      ],
+      "url": "https://lists.apache.org/thread.html/r7c795cd45a3384d4d27e57618a215b0ed19cb6ca8eb070061ad5d837%40%3Cannounce.apache.org%3E"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List"
+      ],
+      "url": "https://lists.apache.org/thread.html/r98d704ed4377ed889d40479db79ed1ee2f43b2ebdd79ce84b042df45%40%3Cannounce.apache.org%3E"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List"
+      ],
+      "url": "https://lists.apache.org/thread.html/rb5b0e46f179f60b0c70204656bc52fcb558e961cb4d06a971e9e3efb%40%3Cusers.httpd.apache.org%3E"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Release Notes"
+      ],
+      "url": "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/RMIIEFINL6FUIOPD2A3M5XC6DH45Y3CC/"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Release Notes"
+      ],
+      "url": "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/WS5RVHOIIRECG65ZBTZY7IEJVWQSQPG3/"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://security.gentoo.org/glsa/202208-20"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://security.netapp.com/advisory/ntap-20211029-0009/"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-apache-httpd-pathtrv-LAzg68cZ"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Patch",
+       "Third Party Advisory"
+      ],
+      "url": "https://www.oracle.com/security-alerts/cpujan2022.html"
+     },
+     {
+      "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+      "tags": [
+       "US Government Resource"
+      ],
+      "url": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2021-41773"
+     }
+    ],
+    "sourceIdentifier": "security@apache.org",
+    "vulnStatus": "Analyzed",
+    "weaknesses": [
+     {
+      "description": [
+       {
+        "lang": "en",
+        "value": "CWE-22"
+       }
+      ],
+      "source": "security@apache.org",
+      "type": "Secondary"
+     },
+     {
+      "description": [
+       {
+        "lang": "en",
+        "value": "CWE-22"
+       }
+      ],
+      "source": "nvd@nist.gov",
+      "type": "Primary"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "affected": [
+     {
+      "affectedData": [
+       {
+        "product": "Apache HTTP Server",
+        "vendor": "Apache Software Foundation",
+        "versions": [
+         {
+          "status": "affected",
+          "version": "Apache HTTP Server 2.4.49"
+         },
+         {
+          "status": "affected",
+          "version": "Apache HTTP Server 2.4.50"
+         }
+        ]
+       }
+      ],
+      "source": "security@apache.org"
+     }
+    ],
+    "cisaActionDue": "2021-11-17",
+    "cisaExploitAdd": "2021-11-03",
+    "cisaRequiredAction": "Apply updates per vendor instructions.",
+    "cisaVulnerabilityName": "Apache HTTP Server Path Traversal Vulnerability",
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:a:apache:http_server:2.4.49:*:*:*:*:*:*:*",
+          "matchCriteriaId": "B201CFB2-F626-4DD0-9F6A-DFE8F64203E2",
+          "vulnerable": true
+         },
+         {
+          "criteria": "cpe:2.3:a:apache:http_server:2.4.50:*:*:*:*:*:*:*",
+          "matchCriteriaId": "F7E0AFD3-D661-4631-86AB-D26F12083D1C",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ]
+     },
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:o:fedoraproject:fedora:34:*:*:*:*:*:*:*",
+          "matchCriteriaId": "A930E247-0B43-43CB-98FF-6CE7B8189835",
+          "vulnerable": true
+         },
+         {
+          "criteria": "cpe:2.3:o:fedoraproject:fedora:35:*:*:*:*:*:*:*",
+          "matchCriteriaId": "80E516C0-98A4-4ADE-B69F-66A772E2BAAA",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ]
+     },
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:a:oracle:instantis_enterprisetrack:17.1:*:*:*:*:*:*:*",
+          "matchCriteriaId": "82EA4BA7-C38B-4AF3-8914-9E3D089EBDD4",
+          "vulnerable": true
+         },
+         {
+          "criteria": "cpe:2.3:a:oracle:instantis_enterprisetrack:17.2:*:*:*:*:*:*:*",
+          "matchCriteriaId": "B9C9BC66-FA5F-4774-9BDA-7AB88E2839C4",
+          "vulnerable": true
+         },
+         {
+          "criteria": "cpe:2.3:a:oracle:instantis_enterprisetrack:17.3:*:*:*:*:*:*:*",
+          "matchCriteriaId": "7F69B9A5-F21B-4904-9F27-95C0F7A628E3",
+          "vulnerable": true
+         },
+         {
+          "criteria": "cpe:2.3:a:oracle:jd_edwards_enterpriseone_tools:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "86305E47-33E9-411C-B932-08C395C09982",
+          "versionEndExcluding": "9.2.6.0",
+          "vulnerable": true
+         },
+         {
+          "criteria": "cpe:2.3:a:oracle:secure_backup:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "C01E8B82-71C7-4A4A-A70A-7B147524AB4A",
+          "versionEndExcluding": "18.1.0.1.0",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ]
+     },
+     {
+      "nodes": [
+       {
+        "cpeMatch": [
+         {
+          "criteria": "cpe:2.3:a:netapp:cloud_backup:-:*:*:*:*:*:*:*",
+          "matchCriteriaId": "5C2089EE-5D7F-47EC-8EA5-0F69790564C4",
+          "vulnerable": true
+         }
+        ],
+        "negate": false,
+        "operator": "OR"
+       }
+      ]
+     }
+    ],
+    "cveTags": [],
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "It was found that the fix for CVE-2021-41773 in Apache HTTP Server 2.4.50 was insufficient. An attacker could use a path traversal attack to map URLs to files outside the directories configured by Alias-like directives. If files outside of these directories are not protected by the usual default configuration \"require all denied\", these requests can succeed. If CGI scripts are also enabled for these aliased pathes, this could allow for remote code execution. This issue only affects Apache 2.4.49 and Apache 2.4.50 and not earlier versions."
+     },
+     {
+      "lang": "es",
+      "value": "Se ha detectado que la correcci\u00f3n de CVE-2021-41773 en Apache HTTP Server versi\u00f3n 2.4.50 no era suficiente. Un atacante pod\u00eda usar un ataque de salto de ruta para asignar URLs a archivos fuera de los directorios configurados por las directivas tipo Alias. Si los archivos fuera de estos directorios no est\u00e1n protegidos por la configuraci\u00f3n habitual por defecto \"require all denied\", estas peticiones pueden tener \u00e9xito. Si los scripts CGI tambi\u00e9n est\u00e1n habilitados para estas rutas alias, esto podr\u00eda permitir una ejecuci\u00f3n de c\u00f3digo remota . Este problema s\u00f3lo afecta a Apache versi\u00f3n  2.4.49 y Apache versi\u00f3n 2.4.50 y no a versiones anteriores"
+     }
+    ],
+    "id": "CVE-2021-42013",
+    "lastModified": "2026-06-17T04:09:09.193",
+    "metrics": {
+     "cvssMetricV2": [
+      {
+       "acInsufInfo": false,
+       "baseSeverity": "HIGH",
+       "cvssData": {
+        "accessComplexity": "LOW",
+        "accessVector": "NETWORK",
+        "authentication": "NONE",
+        "availabilityImpact": "PARTIAL",
+        "baseScore": 7.5,
+        "confidentialityImpact": "PARTIAL",
+        "integrityImpact": "PARTIAL",
+        "vectorString": "AV:N/AC:L/Au:N/C:P/I:P/A:P",
+        "version": "2.0"
+       },
+       "exploitabilityScore": 10.0,
+       "impactScore": 6.4,
+       "obtainAllPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "obtainUserPrivilege": false,
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "userInteractionRequired": false
+      }
+     ],
+     "cvssMetricV31": [
+      {
+       "cvssData": {
+        "attackComplexity": "LOW",
+        "attackVector": "NETWORK",
+        "availabilityImpact": "HIGH",
+        "baseScore": 9.8,
+        "baseSeverity": "CRITICAL",
+        "confidentialityImpact": "HIGH",
+        "integrityImpact": "HIGH",
+        "privilegesRequired": "NONE",
+        "scope": "UNCHANGED",
+        "userInteraction": "NONE",
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        "version": "3.1"
+       },
+       "exploitabilityScore": 3.9,
+       "impactScore": 5.9,
+       "source": "nvd@nist.gov",
+       "type": "Primary"
+      },
+      {
+       "cvssData": {
+        "attackComplexity": "LOW",
+        "attackVector": "NETWORK",
+        "availabilityImpact": "HIGH",
+        "baseScore": 9.8,
+        "baseSeverity": "CRITICAL",
+        "confidentialityImpact": "HIGH",
+        "integrityImpact": "HIGH",
+        "privilegesRequired": "NONE",
+        "scope": "UNCHANGED",
+        "userInteraction": "NONE",
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        "version": "3.1"
+       },
+       "exploitabilityScore": 3.9,
+       "impactScore": 5.9,
+       "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+       "type": "Secondary"
+      }
+     ],
+     "ssvcV203": [
+      {
+       "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+       "ssvcData": {
+        "id": "CVE-2021-42013",
+        "options": [
+         {
+          "exploitation": "active"
+         },
+         {
+          "automatable": "yes"
+         },
+         {
+          "technicalImpact": "total"
+         }
+        ],
+        "role": "CISA Coordinator",
+        "timestamp": "2025-02-04T14:28:39.366525Z",
+        "version": "2.0.3"
+       }
+      }
+     ]
+    },
+    "published": "2021-10-07T16:15:09.270",
+    "references": [
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "http://jvn.jp/en/jp/JVN51106450/index.html"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/164501/Apache-HTTP-Server-2.4.50-Path-Traversal-Code-Execution.html"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/164609/Apache-HTTP-Server-2.4.50-Remote-Code-Execution.html"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/164629/Apache-2.4.49-2.4.50-Traversal-Remote-Code-Execution.html"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/164941/Apache-HTTP-Server-2.4.50-Remote-Code-Execution.html"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/165089/Apache-HTTP-Server-2.4.50-CVE-2021-42013-Exploitation.html"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/167397/Apache-2.4.50-Remote-Code-Execution.html"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/07/6"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/1"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/2"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/3"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/4"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/5"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/6"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/09/1"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/11/4"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/15/3"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/16/1"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Release Notes",
+       "Vendor Advisory"
+      ],
+      "url": "https://httpd.apache.org/security/vulnerabilities_24.html"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List",
+       "Patch"
+      ],
+      "url": "https://lists.apache.org/thread.html/r17a4c6ce9aff662efd9459e9d1850ab4a611cb23392fc68264c72cb3%40%3Ccvs.httpd.apache.org%3E"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List"
+      ],
+      "url": "https://lists.apache.org/thread.html/r7c795cd45a3384d4d27e57618a215b0ed19cb6ca8eb070061ad5d837%40%3Cannounce.apache.org%3E"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Mailing List"
+      ],
+      "url": "https://lists.apache.org/thread.html/rb5b0e46f179f60b0c70204656bc52fcb558e961cb4d06a971e9e3efb%40%3Cusers.httpd.apache.org%3E"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Release Notes"
+      ],
+      "url": "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/RMIIEFINL6FUIOPD2A3M5XC6DH45Y3CC/"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Release Notes"
+      ],
+      "url": "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/WS5RVHOIIRECG65ZBTZY7IEJVWQSQPG3/"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://security.gentoo.org/glsa/202208-20"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://security.netapp.com/advisory/ntap-20211029-0009/"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-apache-httpd-pathtrv-LAzg68cZ"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Patch",
+       "Third Party Advisory"
+      ],
+      "url": "https://www.oracle.com/security-alerts/cpuapr2022.html"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Patch",
+       "Third Party Advisory"
+      ],
+      "url": "https://www.oracle.com/security-alerts/cpujan2022.html"
+     },
+     {
+      "source": "security@apache.org",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory"
+      ],
+      "url": "https://www.povilaika.com/apache-2-4-50-exploit/"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "http://jvn.jp/en/jp/JVN51106450/index.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/164501/Apache-HTTP-Server-2.4.50-Path-Traversal-Code-Execution.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/164609/Apache-HTTP-Server-2.4.50-Remote-Code-Execution.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/164629/Apache-2.4.49-2.4.50-Traversal-Remote-Code-Execution.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/164941/Apache-HTTP-Server-2.4.50-Remote-Code-Execution.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/165089/Apache-HTTP-Server-2.4.50-CVE-2021-42013-Exploitation.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory",
+       "VDB Entry"
+      ],
+      "url": "http://packetstormsecurity.com/files/167397/Apache-2.4.50-Remote-Code-Execution.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/07/6"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/1"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/2"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/3"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/4"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/5"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/08/6"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/09/1"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/11/4"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/15/3"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Third Party Advisory"
+      ],
+      "url": "http://www.openwall.com/lists/oss-security/2021/10/16/1"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Release Notes",
+       "Vendor Advisory"
+      ],
+      "url": "https://httpd.apache.org/security/vulnerabilities_24.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List",
+       "Patch"
+      ],
+      "url": "https://lists.apache.org/thread.html/r17a4c6ce9aff662efd9459e9d1850ab4a611cb23392fc68264c72cb3%40%3Ccvs.httpd.apache.org%3E"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List"
+      ],
+      "url": "https://lists.apache.org/thread.html/r7c795cd45a3384d4d27e57618a215b0ed19cb6ca8eb070061ad5d837%40%3Cannounce.apache.org%3E"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mailing List"
+      ],
+      "url": "https://lists.apache.org/thread.html/rb5b0e46f179f60b0c70204656bc52fcb558e961cb4d06a971e9e3efb%40%3Cusers.httpd.apache.org%3E"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Release Notes"
+      ],
+      "url": "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/RMIIEFINL6FUIOPD2A3M5XC6DH45Y3CC/"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Release Notes"
+      ],
+      "url": "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/WS5RVHOIIRECG65ZBTZY7IEJVWQSQPG3/"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://security.gentoo.org/glsa/202208-20"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://security.netapp.com/advisory/ntap-20211029-0009/"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Third Party Advisory"
+      ],
+      "url": "https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-apache-httpd-pathtrv-LAzg68cZ"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Patch",
+       "Third Party Advisory"
+      ],
+      "url": "https://www.oracle.com/security-alerts/cpuapr2022.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Patch",
+       "Third Party Advisory"
+      ],
+      "url": "https://www.oracle.com/security-alerts/cpujan2022.html"
+     },
+     {
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Exploit",
+       "Third Party Advisory"
+      ],
+      "url": "https://www.povilaika.com/apache-2-4-50-exploit/"
+     },
+     {
+      "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+      "tags": [
+       "US Government Resource"
+      ],
+      "url": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2021-42013"
+     }
+    ],
+    "sourceIdentifier": "security@apache.org",
+    "vulnStatus": "Analyzed",
+    "weaknesses": [
+     {
+      "description": [
+       {
+        "lang": "en",
+        "value": "CWE-22"
+       }
+      ],
+      "source": "security@apache.org",
+      "type": "Secondary"
+     },
+     {
+      "description": [
+       {
+        "lang": "en",
+        "value": "CWE-22"
+       },
+       {
+        "lang": "en",
+        "value": "NVD-CWE-Other"
+       }
+      ],
+      "source": "nvd@nist.gov",
+      "type": "Primary"
+     }
+    ]
+   }
+  }
+ ]
+}

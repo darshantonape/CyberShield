@@ -1,0 +1,36 @@
+# CyberShield — Protected ports
+#
+# Ports listed here can NEVER be isolated by the remediation module. The check is
+# a hard block in `cybershield/remediation/eligibility.py`. There is no runtime
+# override, no force flag, and no API parameter that bypasses it.
+#
+# Rationale: automated firewall changes that break management access or core web
+# services are the single most damaging failure mode of a tool like this. Losing
+# SSH to a target means losing the ability to roll back.
+#
+# Changing this file requires editing it deliberately and re-running preflight.
+# An administrative override workflow is documented as FUTURE WORK in
+# docs/safety-controls.md and is intentionally NOT implemented in this version.
+
+protected_ports:
+  - port: 22
+    proto: tcp
+    reason: "SSH — management channel. Blocking it would prevent rollback."
+  - port: 80
+    proto: tcp
+    reason: "HTTP — core web service; isolation risks unrelated outage."
+  - port: 443
+    proto: tcp
+    reason: "HTTPS — core web service; isolation risks unrelated outage."
+  - port: 2222
+    proto: tcp
+    reason: >-
+      SSH management channel for the laboratory targets. Container sshd is
+      published here because the Colima VM already binds 0.0.0.0:22.
+      Isolating it would remove the ability to roll back.
+
+# Additional guard, enforced independently of the list above: the SSH port
+# CyberShield is actually using to reach a target is always protected on that
+# target, even if the operator removes 22 from this list or the target uses a
+# non-standard management port. See eligibility.check_management_channel().
+protect_active_management_channel: true

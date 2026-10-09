@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Audit log · CyberShield{% endblock %}
+{% block heading %}Audit log{% endblock %}
+{% block subheading %}Hash-chained, append-only record of every operation{% endblock %}
+{% block content %}
+
+{% if chain.valid %}
+<div class="note">
+  <strong>Hash chain verified.</strong> {{ chain.message }}
+  Each entry carries the SHA-256 of the entry before it, so altering or deleting
+  any record invalidates every entry after it.
+</div>
+{% else %}
+<div class="note danger">
+  <strong>AUDIT CHAIN BROKEN.</strong> {{ chain.message }}
+  {% if chain.first_invalid_sequence %}First invalid entry: #{{ chain.first_invalid_sequence }}.{% endif %}
+  Treat all subsequent records as untrustworthy.
+</div>
+{% endif %}
+
+<div class="panel">
+  <h2>Filter</h2>
+  <div class="body">
+    <form method="get" action="/audit" class="filters">
+      <div class="row">
+        <div class="field">
+          <label for="action">Event type</label>
+          <select id="action" name="action">
+            <option value="">all events</option>
+            {% for a in known_actions %}
+            <option value="{{ a }}" {{ 'selected' if action == a }}>{{ a }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field narrow">
+          <label for="outcome">Outcome</label>
+          <select id="outcome" name="outcome">
+            <option value="">any</option>
+            {% for o in ['success','refused','failure','partial','pending'] %}
+            <option value="{{ o }}" {{ 'selected' if outcome == o }}>{{ o }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="actions">
+          <button class="primary" type="submit">Apply</button>
+          <a class="btn" href="/audit">Reset</a>
+        </div>
+      </div>
+    </form>
+    <p class="caveat">
+      Filtering affects this view only. The hash chain is always verified across
+      the complete log — verifying a filtered subset could report a break that is
+      not there, or miss one that is.
+    </p>
+  </div>
+</div>
+
+<div class="panel flush">
+  <h2>
+    Events — showing {{ entries|length }} of {{ matched }} matching, {{ total }} total
+  </h2>
+  <div class="scroll tall">
+    {% if entries %}
+    <table>
+      <tr><th class="num">#</th><th>Timestamp (UTC)</th><th>Action</th><th>Outcome</th>
+          <th>Actor</th><th>Target</th><th>Detail</th></tr>
+      {% for e in entries %}
+      <tr>
+        <td class="num mono">{{ e.sequence }}</td>
+        <td class="mono muted">{{ e.timestamp[:19].replace('T', ' ') }}</td>
+        <td class="mono">{{ e.action }}</td>
+        <td>
+          {% if e.outcome == 'success' %}<span class="badge conf-HIGH">success</span>
+          {% elif e.outcome == 'refused' %}<span class="badge verdict-DENY">refused</span>
+          {% elif e.outcome == 'failure' %}<span class="badge sev-CRITICAL">failure</span>
+          {% elif e.outcome == 'partial' %}<span class="badge sev-MEDIUM">partial</span>
+          {% else %}<span class="badge conf-LOW">{{ e.outcome }}</span>{% endif %}
+        </td>
+        <td class="muted">{{ e.actor }}</td>
+        <td class="mono">{{ e.detail.get('target') or e.detail.get('target_address') or e.detail.get('username') or '—' }}</td>
+        <td class="caveat">{{ e.summary_text }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}<div class="empty">No audit entries yet.</div>{% endif %}
+  </div>
+</div>
+
+<div class="note">
+  The chain makes tampering <em>detectable</em>, and locates where it happened.
+  It does not <em>prevent</em> it: anyone who can write the file can rewrite the
+  whole chain. Recorded as a limitation rather than glossed over.
+</div>
+
+{% endblock %}

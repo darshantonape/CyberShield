@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · CyberShield{% endblock %}
+{% block heading %}Security overview{% endblock %}
+{% block subheading %}All figures come from scans stored in this database{% endblock %}
+{% block content %}
+
+{% if not stats.scan_count %}
+  <div class="note">
+    <strong>No scans recorded yet.</strong>
+    Authorize a target on the <a href="/targets">Targets</a> page, then start a
+    scan from <a href="/scans">Scans</a>.
+    Nothing on this dashboard is generated or estimated — every figure comes
+    from a real scan stored in the database.
+  </div>
+{% endif %}
+
+{% if stats.assessment_session %}
+<p class="caveat" style="margin:-4px 0 12px">
+  Host and service counts are from the latest <strong>assessment</strong> scan
+  (<a class="mono" href="/scans/{{ stats.assessment_session }}">{{ stats.assessment_session[:12] }}</a>
+  against <span class="mono">{{ stats.assessment_target }}</span>).
+  Verification rescans probe a single port and are excluded, so they cannot
+  inflate these figures.
+</p>
+{% endif %}
+
+{% if stats.assessment_reachability == 'unreachable' %}
+  <div class="note warn">
+    <strong>The most recent assessment target did not answer.</strong>
+    {{ stats.assessment_reachability_note }}
+    <span class="hint">
+      The zero counts below mean nothing was observed — not that the target is
+      free of vulnerabilities.
+    </span>
+  </div>
+{% endif %}
+
+{# Tile order is load-bearing: a test asserts the first three tiles are hosts,
+   open services and CVE candidates, scoped to one assessment scan. #}
+<div class="tiles kpis">
+  <div class="tile accent">
+    <div class="head"><svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-host"/></svg></div>
+    <div class="n">{{ stats.host_count }}</div><div class="k">Hosts discovered</div>
+  </div>
+  <div class="tile info">
+    <div class="head"><svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-service"/></svg></div>
+    <div class="n">{{ stats.open_service_count }}</div><div class="k">Open services</div>
+  </div>
+  <div class="tile warn">
+    <div class="head"><svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-alert"/></svg></div>
+    <div class="n">{{ stats.vuln_count }}</div><div class="k">CVE candidates</div>
+  </div>
+  <div class="tile special">
+    <div class="head"><svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-flag"/></svg></div>
+    <div class="n">{{ stats.flagged_fp_count }}</div><div class="k">Probable false positives</div>
+  </div>
+  <div class="tile ok">
+    <div class="head"><svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-target"/></svg></div>
+    <div class="n">{{ stats.authorized_target_count }}</div><div class="k">Your authorized targets</div>
+    {% if stats.shared_scope_count %}<div class="k muted">+{{ stats.shared_scope_count }} shared scope</div>{% endif %}
+  </div>
+  <div class="tile info">
+    <div class="head"><svg class="icon" width="16" height="16" aria-hidden="true"><use href="#i-scan"/></svg></div>
+    <div class="n">{{ stats.scan_count }}</div><div class="k">Scans run</div>
+  </div>
+</div>
+
+<div class="grid-2">
+
+  <div class="panel">
+    <h2>Severity of CVE candidates</h2>
+    <div class="body">
+      {% if stats.severity %}
+        {# Donut drawn as SVG arcs. Every number below comes from
+           stats.severity / stats.vuln_count — the same values the table
+           repeats in text, so the chart is never the only way to read them.
+           Circumference of r=60 is 376.99. #}
+        {% set ns = namespace(offset=0) %}
+        <div class="chart-row" style="margin-bottom:16px">
+          <div class="donut">
+            <svg viewBox="0 0 148 148" width="148" height="148" role="img"
+                 aria-label="CVE candidates by severity: {% for sev, count in stats.severity %}{{ sev or 'unscored' }} {{ count }}{% if not loop.last %}, {% endif %}{% endfor %}">
+              <circle cx="74" cy="74" r="60" class="seg" stroke="var(--tint-neutral)"/>
+              {% for sev, count in stats.severity %}
+                {% if stats.vuln_count and count %}
+                  {% set dash = 376.99 * count / stats.vuln_count %}
+                  <circle cx="74" cy="74" r="60" class="seg"
+                          stroke="var(--sev-{{ (sev or 'none') | lower }})"
+                          stroke-dasharray="{{ dash | round(2) }} {{ (376.99 - dash) | round(2) }}"
+                          stroke-dashoffset="{{ (-ns.offset) | round(2) }}"></circle>
+                  {% set ns.offset = ns.offset + dash %}
+                {% endif %}
+              {% endfor %}
+            </svg>
+            <div class="hole">
+              <div class="n">{{ stats.vuln_count }}</div>
+              <div class="k">Candidates</div>
+            </div>
+          </div>
+          <div class="legend">
+            {% for sev, count in stats.severity %}
+            <div class="item">
+              <span class="swatch" style="background: var(--sev-{{ (sev or 'none') | lower }})"></span>
+              <span class="lbl">{{ sev or 'Unscored' }}</span>
+              <span class="val">{{ count }}</span>
+              <span class="pct">{{ (100 * count / stats.vuln_count) | round(1) }}%</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <table>
+          <tr><th>Severity</th><th class="num">Candidates</th><th class="num">Share</th></tr>
+          {% for sev, count in stats.severity %}
+          <tr>
+            <td><span class="badge sev-{{ sev }}">{{ sev or 'UNSCORED' }}</span></td>
+            <td class="num">{{ count }}</td>
+            <td class="num">{{ (100 * count / stats.vuln_count) | round(1) }}%</td>
+          </tr>
+          {% endfor %}
+        </table>
+        <p class="caveat">
+          Severity is the CVSS base score NVD publishes for the CVE. It is not a
+          risk rating for this deployment: no temporal or environmental scoring is
+          applied, and a candidate is not a confirmed vulnerability.
+        </p>
+      {% else %}
+        <div class="empty">
+          <span class="big">No CVE candidates recorded</span>
+          Run a service-detection scan, then correlate it against NVD.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Scan outcomes</h2>
+    <div class="body">
+      {# Meters, not a chart library. Each bar is a share of the same
+         stats.scan_count the tile above reports, and every value is also
+         printed as a number — the bar is never the only way to read it. #}
+      {% set outcomes = [
+        ('Completed',   stats.completed_count,   'var(--success)',      'Ran to completion and the target answered.'),
+        ('Partial',     stats.partial_count,     'var(--sev-medium)',   'A host timed out or the output was truncated — the port list is incomplete.'),
+        ('Unreachable', stats.unreachable_count, 'var(--warning)',      'Authorized, but nothing answered. Not a clean result.'),
+        ('Failed',      stats.failed_count,      'var(--sev-critical)', 'Nmap could not run or its output could not be read. No findings recorded.'),
+      ] %}
+      <div class="meters">
+        {% for label, count, colour, blurb in outcomes %}
+        <div class="meter">
+          <div class="top">
+            <span class="lbl">{{ label }}</span>
+            <span class="val">{{ count }}</span>
+          </div>
+          <div class="track">
+            <div class="fill" style="width: {{ (100 * count / stats.scan_count) | round(1) if stats.scan_count else 0 }}%; background: {{ colour }}"></div>
+          </div>
+          <p class="caveat" style="margin-top:5px">{{ blurb }}</p>
+        </div>
+        {% endfor %}
+      </div>
+
+      <h3 style="font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:18px 0 8px">
+        Remediation status
+      </h3>
+      <div class="tiles" style="margin-bottom:10px">
+        <div class="tile ok"><div class="n">{{ stats.remediation_applied }}</div><div class="k">Applied</div></div>
+        <div class="tile info"><div class="n">{{ stats.remediation_rolled_back }}</div><div class="k">Rolled back</div></div>
+        <div class="tile danger"><div class="n">{{ stats.remediation_failed }}</div><div class="k">Failed</div></div>
+        <div class="tile accent"><div class="n">{{ stats.exposure_reduced_count }}</div><div class="k">Exposure reduced</div></div>
+      </div>
+      <p class="caveat">
+        "Exposure reduced" means the port's reachability changed as observed by
+        this scanner. The service kept running and no software was patched.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<div class="panel">
+  <h2>CVSS version coverage</h2>
+  <div class="body">
+    {% if stats.cvss_versions %}
+      <div class="meters">
+        {% for ver, count in stats.cvss_versions %}
+        <div class="meter">
+          <div class="top">
+            <span class="lbl">{{ 'CVSS v' ~ ver if ver else 'No usable score' }}</span>
+            <span class="val">{{ count }}</span>
+            <span class="pct" style="color:var(--text-muted);font-size:11.5px;margin-left:10px">{{ (100 * count / stats.vuln_count) | round(1) if stats.vuln_count else 0 }}%</span>
+          </div>
+          <div class="track">
+            <div class="fill" style="width: {{ (100 * count / stats.vuln_count) | round(1) if stats.vuln_count else 0 }}%; background: {{ 'var(--info)' if ver else 'var(--sev-none)' }}"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <p class="caveat">
+        Scores from different CVSS generations are not directly comparable, and
+        CVSS v2 has no CRITICAL band. Each score is always shown with the
+        version it came from.
+      </p>
+    {% else %}
+      <div class="empty">No scored candidates yet.</div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="panel flush">
+  <h2>Recent scans <span class="right"><a href="/scans">All scans →</a> · <a href="/reports">Reports →</a></span></h2>
+  <div class="scroll">
+    {% if scans %}
+    <table>
+      <tr><th>Session</th><th>Target</th><th>Kind</th><th>Status</th><th>Reachability</th>
+          <th class="num">Duration</th><th>Operator</th><th>Started</th></tr>
+      {% for s in scans %}
+      <tr>
+        <td><a class="mono" href="/scans/{{ s.session_id }}">{{ s.session_id[:12] }}</a></td>
+        <td class="mono">{{ s.target_spec }}</td>
+        <td>{{ s.scan_kind }}</td>
+        <td>
+          {% if s.status == 'completed_with_timeouts' %}
+            <span class="badge sev-MEDIUM" title="One or more hosts hit --host-timeout; the port list is truncated">partial</span>
+          {% elif s.status == 'completed_unreachable' %}
+            <span class="badge sev-MEDIUM">unreachable</span>
+          {% elif s.status == 'failed' %}
+            <span class="badge sev-CRITICAL">failed</span>
+          {% else %}<span class="badge conf-HIGH">{{ s.status }}</span>{% endif %}
+        </td>
+        <td>
+          {% if s.reachability %}
+            <span class="reach {{ s.reachability }}">{{ s.reachability }}</span>
+          {% else %}<span class="faint">—</span>{% endif %}
+        </td>
+        <td class="num">{{ '%.1f'|format(s.duration_seconds or 0) }}s</td>
+        <td class="muted">{{ s.initiated_by or '—' }}</td>
+        <td class="muted">{{ s.started_at.strftime('%Y-%m-%d %H:%M') if s.started_at }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}<div class="empty">No scans yet.</div>{% endif %}
+  </div>
+</div>
+
+<div class="panel flush">
+  <h2>Remediation &amp; verification <span class="right"><a href="/remediation">Remediation →</a></span></h2>
+  <div class="scroll">
+    {% if actions %}
+    <table>
+      <tr><th>Request</th><th>Target</th><th>Port</th><th>State</th><th>Before</th><th>After</th>
+          <th>Exposure reduced</th><th>Mgmt intact</th><th>Rollback</th></tr>
+      {% for a in actions %}
+      <tr>
+        <td class="mono">{{ a.request_id[:10] }}</td>
+        <td class="mono">{{ a.target_address }}</td>
+        <td class="mono">{{ a.proto }}/{{ a.port }}</td>
+        <td>{{ a.state }}</td>
+        <td class="state-{{ (a.before_state or {}).get('state','') }}">{{ (a.before_state or {}).get('state','—') }}</td>
+        <td class="state-{{ (a.after_state or {}).get('state','') }}">{{ (a.after_state or {}).get('state','—') }}</td>
+        <td>{{ 'yes' if a.exposure_reduced else ('no' if a.exposure_reduced is not none else '—') }}</td>
+        <td>{{ 'yes' if a.management_channel_intact else ('no' if a.management_channel_intact is not none else '—') }}</td>
+        <td>{{ 'verified' if a.rollback_verified else ('—' if a.rollback_verified is none else 'FAILED') }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}<div class="empty">No remediation actions recorded.</div>{% endif %}
+  </div>
+</div>
+
+<div class="panel flush">
+  <h2>Recent activity <span class="right"><a href="/audit">Full audit log →</a></span></h2>
+  <div class="scroll">
+    {% if recent_events %}
+    <table>
+      <tr><th class="num">#</th><th>Time (UTC)</th><th>Event</th><th>Outcome</th>
+          <th>Operator</th><th>Target</th><th>Detail</th></tr>
+      {% for e in recent_events %}
+      <tr>
+        <td class="num mono">{{ e.sequence }}</td>
+        <td class="mono muted">{{ e.timestamp[:19].replace('T', ' ') }}</td>
+        <td class="mono">{{ e.action }}</td>
+        <td>
+          {% if e.outcome == 'success' %}<span class="badge conf-HIGH">success</span>
+          {% elif e.outcome == 'refused' %}<span class="badge verdict-DENY">refused</span>
+          {% elif e.outcome == 'failure' %}<span class="badge sev-CRITICAL">failure</span>
+          {% elif e.outcome == 'partial' %}<span class="badge sev-MEDIUM">partial</span>
+          {% else %}<span class="badge conf-LOW">{{ e.outcome }}</span>{% endif %}
+        </td>
+        <td class="muted">{{ e.actor }}</td>
+        <td class="mono">{{ e.target or '—' }}</td>
+        <td class="caveat">{{ e.summary_text }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}<div class="empty">No audit entries yet.</div>{% endif %}
+  </div>
+</div>
+
+{% endblock %}

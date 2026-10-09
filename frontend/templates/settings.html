@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Settings · CyberShield{% endblock %}
+{% block heading %}Account settings{% endblock %}
+{% block subheading %}Sessions, security posture and account removal{% endblock %}
+{% block content %}
+
+{% if message %}<div class="note ok">{{ message }}</div>{% endif %}
+{% if error %}<div class="note danger">{{ error.message }}</div>{% endif %}
+
+<div class="panel flush">
+  <h2>Active sessions
+    {% if sessions|length > 1 %}
+    <span class="right">
+      <form method="post" action="/settings/sessions/revoke-others" style="display:inline">
+        <button class="subtle" type="submit">Sign out all other sessions</button>
+      </form>
+    </span>
+    {% endif %}
+  </h2>
+  <div class="scroll">
+    {% if sessions %}
+    <table>
+      <tr><th>Device</th><th>Client host</th><th>Last seen (UTC)</th>
+          <th>Started</th><th>Expires</th></tr>
+      {% for s in sessions %}
+      <tr>
+        <td>
+          {% if s.is_current %}<span class="badge conf-HIGH">this device</span> {% endif %}
+          <span class="muted">{{ s.user_agent or 'unknown client' }}</span>
+        </td>
+        <td class="mono">{{ s.client_host or '—' }}</td>
+        <td class="mono muted">{{ (s.last_seen_at or '—')[:19].replace('T',' ') }}</td>
+        <td class="mono muted">{{ (s.created_at or '—')[:19].replace('T',' ') }}</td>
+        <td class="mono muted">{{ s.expires_at[:19].replace('T',' ') }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}<div class="empty">No active sessions.</div>{% endif %}
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Security posture</h2>
+  <div class="body">
+    <table class="kv">
+      <tr><th>Authorization</th>
+          <td>{% if safety.authorization_signed %}<span class="reach reachable">signed</span>
+              {% else %}<span class="badge sev-CRITICAL">not signed</span>{% endif %}</td>
+          <th>Remediation backend</th><td class="mono">{{ safety.remediation_backend }}</td></tr>
+      <tr><th>Live enforcement</th>
+          <td>{% if safety.live_remediation_enabled %}<span class="badge sev-MEDIUM">armed</span>
+              {% else %}<span class="badge conf-HIGH">dry-run</span>{% endif %}</td>
+          <th>Rule auto-revert</th><td>{{ safety.remediation_ttl_minutes }} min</td></tr>
+      <tr><th>Authorized targets</th><td>{{ safety.authorized_targets|length }}</td>
+          <th>Protected ports</th><td>{{ safety.protected_ports|length }}</td></tr>
+    </table>
+    <p class="caveat">
+      Security posture is set by <code>config/*.yaml</code> and the environment,
+      not from this page — it is shown here for reference. Authorization scope is
+      managed on the <a href="/targets">Targets</a> page.
+    </p>
+  </div>
+</div>
+
+<div class="panel danger-zone">
+  <h2>Delete this account</h2>
+  <div class="body">
+    <p class="caveat">
+      Removes your operator account and signs out all of its sessions. It does
+      <strong>not</strong> delete any historical record: scans, remediation
+      actions and audit entries naming
+      <span class="mono">{{ info.username if info else 'this account' }}</span>
+      are retained, because deleting an account must never rewrite what was done.
+      {% if operator_count <= 1 %}
+      <br><strong>This is the only operator account and cannot be deleted</strong>
+      — the installation would be left with no way to sign in.
+      {% endif %}
+    </p>
+    {% if operator_count > 1 %}
+    <form method="post" action="/settings/delete">
+      <div class="field">
+        <label for="password">Confirm your password</label>
+        <input type="password" id="password" name="password"
+               autocomplete="current-password" required>
+      </div>
+      <div class="field">
+        <label for="confirm">Type <code>delete</code> to confirm</label>
+        <input type="text" id="confirm" name="confirm" autocomplete="off"
+               spellcheck="false" required>
+      </div>
+      <button class="danger" type="submit">Delete my account</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

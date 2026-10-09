@@ -1,0 +1,130 @@
+# CyberShield — Nmap scan profiles
+#
+# Profiles are converted to argv arrays by cybershield/scanner/nmap_runner.py.
+# Operators pick a profile by name; raw Nmap flags are never accepted from the
+# UI or API, so no user input reaches the command line unvalidated.
+#
+# Deliberately excluded across all profiles:
+#   -T5           aggressive timing; unreliable results, disruptive
+#   --script vuln intrusive NSE categories
+#   exploit / brute / dos NSE categories
+# See nmap_runner.ALLOWED_NSE_CATEGORIES — the allowlist is enforced in code.
+
+profiles:
+
+  discovery:
+    description: "Host discovery only. No port scan."
+    # TCP ping probes only. ARP (-PR) and ICMP echo (-PE) need raw sockets and
+    # therefore root; including them makes Nmap warn and silently fall back to
+    # exactly these probes anyway, so they are omitted to keep the assessment
+    # path fully unprivileged.
+    args: ["-sn", "-n", "-PS22,80,443,3306,8080"]
+    timeout_seconds: 300
+
+  service_detect:
+    description: "TCP connect scan with service/version detection on common ports."
+    # -sT (connect) rather than -sS (SYN): -sS requires root. Connect scan runs
+    # unprivileged, which keeps CyberShield off sudo for the assessment path.
+    #
+    # Timing measured against the laboratory on 2026-08-30. Most of the top-1000
+    # ports on a published-port host answer nothing at all and are reported
+    # `filtered`, so each one costs a full probe timeout. At default timing a
+    # single host took over 10 minutes; -T4 with bounded retries brings it to
+    # roughly 50-90s. -T5 remains forbidden (rejected at config load): it trades
+    # accuracy for speed, which would corrupt the detection results.
+    #
+    # --host-timeout is a hard per-host ceiling. If it trips, Nmap reports the
+    # host as timed out rather than silently returning fewer ports — a partial
+    # scan must never be mistaken for a clean one.
+    # -PS must match the discovery profile's probe set. Without it Nmap falls
+    # back to its default unprivileged host discovery (TCP connect to 80 and
+    # 443). On a host exposing neither, every target is declared down and
+    # skipped, and the scan returns "0 open services" in a few seconds — a
+    # silent false negative indistinguishable from a genuinely clean host.
+    # Observed against this laboratory on 2026-08-30 before this was added.
+    # An EXPLICIT port set, not --top-ports.
+    #
+    # --top-ports was tried first and abandoned. Measured on 2026-08-30 against
+    # this laboratory: 6379/tcp (Redis) is scanned by neither --top-ports 1000
+    # nor --top-ports 2000, so a Redis target that was demonstrably listening
+    # was silently absent from two consecutive full scans. Its nmap-services
+    # frequency is 0.000076, and Nmap's selection does not correspond to a
+    # simple rank over that column, so no --top-ports value can be justified
+    # without re-testing it per port.
+    #
+    # An enumerated list is slower to write but reproducible, auditable, and
+    # cannot silently drop a service under study. The limitation it introduces
+    # is stated plainly: this scan finds only what is listed here. Use
+    # service_detect_full for an exhaustive sweep.
+    #
+    # --max-retries 1 is acceptable on a loss-free local link; on a lossy
+    # network it risks false negatives and is recorded as a threat to validity.
+    # --host-timeout is a hard ceiling; if it trips, the host is marked
+    # timed_out and the scan is recorded as completed_with_timeouts rather than
+    # being mistaken for a clean result.
+    args: ["-sT", "-sV", "-n", "-T4", "--max-retries", "1", "--host-timeout", "600s",
+           "-PS22,80,443,2222,3306,8080",
+           "--version-intensity", "7",
+           "-p", "21,22,23,25,53,80,110,111,135,139,143,389,443,445,465,587,636,993,995,1433,1521,2049,2222,3000,3306,3389,4444,5000,5432,5601,5900,6379,7001,8000,8008,8080,8081,8443,8888,9000,9090,9200,9300,11211,27017,27018"]
+    timeout_seconds: 1800
+
+  service_detect_full:
+    description: "All 65535 TCP ports with version detection. Slow."
+    args: ["-sT", "-sV", "-n", "--version-intensity", "7", "-p-"]
+    timeout_seconds: 5400
+
+  # -------------------------------------------------------------------------
+  # Real LAN / Wi-Fi profiles
+  #
+  # The two profiles above were tuned against the Docker laboratory, where every
+  # target answers a TCP probe on a known published port. A real LAN device does
+  # not behave that way:
+  #
+  #   * Windows blocks inbound connections by default, including the ports the
+  #     lab profiles probe, so TCP-ping host discovery declares it DOWN and Nmap
+  #     skips it entirely — reporting "0 hosts up" for a machine that is sitting
+  #     right there. That is a false negative indistinguishable from an absent
+  #     host, which is exactly the failure this project must not produce.
+  #   * ICMP echo is frequently filtered, and unprivileged Nmap cannot send it
+  #     anyway.
+  #   * Wi-Fi access points with client isolation drop station-to-station
+  #     traffic outright.
+  #
+  # So the LAN service profile uses -Pn: skip host discovery and probe the ports
+  # regardless. Reachability is then decided from the PORT results, by
+  # backend/scanner/reachability.py, rather than from Nmap's up/down guess.
+  #
+  # Cost of -Pn: every address in the range is probed whether or not anything is
+  # there, so these profiles are meant for a single host or a small range. The
+  # host timeout bounds the worst case.
+  # -------------------------------------------------------------------------
+
+  lan_discovery:
+    description: "Host discovery on a real LAN. Wide TCP probe set, no port scan."
+    # A deliberately broader probe set than the lab profile: 445/139/135 catch
+    # Windows, 5000/7000/62078 catch macOS and iOS, 8009/8008 catch Chromecast
+    # and smart TVs, 22/80/443/3389 catch the general case. A device answering
+    # none of these is reported as unreachable rather than as clean.
+    args: ["-sn", "-n", "-T4", "--max-retries", "2", "--host-timeout", "60s",
+           "-PS22,80,135,139,443,445,548,3389,5000,5900,7000,8008,8009,8080,62078"]
+    timeout_seconds: 600
+
+  lan_service_detect:
+    description: "Authorized LAN device: service and version detection (-Pn)."
+    # -Pn is the point of this profile. Without it a firewalled laptop is
+    # declared down and reported as having no services at all.
+    args: ["-sT", "-sV", "-n", "-Pn", "-T4", "--max-retries", "1",
+           "--host-timeout", "900s", "--version-intensity", "7",
+           "-p", "21,22,23,25,53,80,110,135,139,143,389,443,445,465,548,587,631,636,993,995,1433,1521,2222,3000,3306,3389,4444,5000,5432,5900,5985,5986,6379,7000,8000,8008,8080,8443,8888,9000,9090,9100,27017,62078"]
+    timeout_seconds: 3600
+
+  verify_port:
+    description: "Single-port re-scan used for before/after remediation verification."
+    # Port is injected as a validated integer by verify.py — never string-formatted.
+    args: ["-sT", "-n", "-Pn", "--version-intensity", "0"]
+    timeout_seconds: 120
+
+default_profile: service_detect
+
+# Hard ceiling regardless of profile. Prevents a runaway scan.
+global_max_timeout_seconds: 7200

@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% block title %}Report {{ session_id[:12] }} · CyberShield{% endblock %}
+{% block heading %}Assessment report{% endblock %}
+{% block subheading %}{{ report.target if report else 'Unknown session' }}{% endblock %}
+{% block content %}
+
+<style>
+  .rep-summary { border-radius: 8px; padding: 14px 16px; margin: 4px 0 16px; color:#fff; }
+  .rep-summary h3 { margin:0 0 4px; font-size:15px; color:#fff; }
+  .rep-summary p { margin:0; font-size:12.5px; opacity:.95; }
+  .rep-summary.danger { background:#b91c1c; }
+  .rep-summary.warn   { background:#b45309; }
+  .rep-summary.ok     { background:#15803d; }
+  .rep-summary.muted  { background:#4b5563; }
+  .rep-actions { margin: 0 0 14px; display:flex; gap:8px; }
+  .rec { font-size:12px; color:var(--muted); margin:6px 0 0; }
+  @media print {
+    .sidebar, .topbar, .foot, .banner, .rep-actions, .no-print { display:none !important; }
+    .content { margin:0 !important; }
+    .panel { break-inside: avoid; }
+    body, .shell, .content { background:#fff !important; }
+  }
+</style>
+
+<p class="muted no-print" style="margin-top:0"><a href="/reports">&larr; All reports</a></p>
+
+{% if not report %}
+  <div class="note warn">
+    <strong>No scan with that session id.</strong>
+    Nothing is inferred about any target from its absence.
+  </div>
+{% else %}
+
+{% set sv = report.summary.state.value %}
+{% if sv in ('candidates', 'failed') %}{% set cls = 'danger' %}
+{% elif sv in ('no_candidates',) %}{% set cls = 'ok' %}
+{% elif sv in ('in_progress',) %}{% set cls = 'muted' %}
+{% else %}{% set cls = 'warn' %}{% endif %}
+
+<div class="rep-actions no-print">
+  <a class="btn primary" href="/reports/{{ report.session_id }}/pdf">Download PDF</a>
+  <button class="btn" type="button" onclick="window.print()">Print</button>
+</div>
+
+<div class="rep-summary {{ cls }}">
+  <h3>{{ report.summary.headline }}</h3>
+  <p>{{ report.summary.detail }}</p>
+</div>
+
+<div class="panel">
+  <h2>Scan information</h2>
+  <div class="body">
+    <table class="kv">
+      <tr><th>Session</th><td class="mono">{{ report.session_id }}</td>
+          <th>Target</th><td class="mono">{{ report.target }}</td></tr>
+      <tr><th>Scan kind</th><td>{{ report.scan_kind }}</td>
+          <th>Profile</th><td>{{ report.profile }}</td></tr>
+      <tr><th>Status</th><td>{{ report.status }}</td>
+          <th>Reachability</th><td><span class="reach {{ report.reachability or 'unknown' }}">{{ (report.reachability or 'unknown')|upper }}</span></td></tr>
+      <tr><th>Started</th><td class="muted">{{ report.started_at.strftime('%Y-%m-%d %H:%M:%S UTC') if report.started_at else '—' }}</td>
+          <th>Duration</th><td>{{ '%.2f'|format(report.duration_seconds or 0) }}s</td></tr>
+      <tr><th>Operator</th><td>{{ report.operator or '—' }}</td>
+          <th>Nmap</th><td>{{ report.nmap_version or '—' }}</td></tr>
+      <tr><th>Config hash</th><td class="mono">{{ report.config_hash or '—' }}</td>
+          <th>Generated</th><td class="muted">{{ report.generated_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}</td></tr>
+    </table>
+    {% if report.reachability_note %}<p class="caveat" style="margin-top:10px">{{ report.reachability_note }}</p>{% endif %}
+    {% if report.nmap_argv %}<p class="caveat">Command: <code>{{ report.nmap_argv | join(' ') }}</code></p>{% endif %}
+  </div>
+</div>
+
+<div class="tiles">
+  <div class="tile accent"><div class="n">{{ report.counts.hosts }}</div><div class="k">Hosts</div></div>
+  <div class="tile"><div class="n">{{ report.counts.open_services }}</div><div class="k">Open services</div></div>
+  <div class="tile warn"><div class="n">{{ report.counts.candidates }}</div><div class="k">CVE candidates</div></div>
+  <div class="tile"><div class="n">{{ report.counts.flagged_false_positives }}</div><div class="k">Probable FPs</div></div>
+  <div class="tile"><div class="n">{{ report.counts.undetermined_services }}</div><div class="k">Undetermined svc.</div></div>
+  <div class="tile"><div class="n">{{ report.counts.remediations }}</div><div class="k">Remediations</div></div>
+</div>
+
+{% if report.summary.severity_counts %}
+<div class="panel">
+  <h2>Severity of CVE candidates</h2>
+  <div class="body">
+    <table>
+      <tr><th>Severity</th><th class="num">Candidates</th></tr>
+      {% for sev in ['CRITICAL','HIGH','MEDIUM','LOW'] %}
+        {% if report.summary.severity_counts.get(sev) %}
+        <tr><td><span class="badge sev-{{ sev }}">{{ sev }}</span></td>
+            <td class="num">{{ report.summary.severity_counts[sev] }}</td></tr>
+        {% endif %}
+      {% endfor %}
+    </table>
+    <p class="caveat">CVSS base scores are shown with the version they came from. v2 has no
+      CRITICAL band and its scores are not comparable with v3.x.</p>
+  </div>
+</div>
+{% endif %}
+
+{% for host in report.hosts %}
+<div class="panel flush">
+  <h2><span class="mono">{{ host.address }}</span>
+    {% if host.hostname %}<span class="muted"> · {{ host.hostname }}</span>{% endif %}
+    <span class="badge {{ 'conf-HIGH' if host.state == 'up' else 'conf-LOW' }}">{{ host.state }}</span>
+  </h2>
+  <div class="scroll">
+    {% if host.services %}
+    <table>
+      <tr><th>Port</th><th>State</th><th>Service</th><th>Product</th><th>Version</th>
+          <th>Ver. conf.</th><th>Identification</th><th>Policy</th><th class="num">CVEs</th></tr>
+      {% for s in host.services %}
+      <tr>
+        <td class="mono">{{ s.proto }}/{{ s.port }}</td>
+        <td class="state-{{ s.state }}">{{ s.state }}</td>
+        <td>{{ s.service_name or '—' }}</td>
+        <td>{{ s.product or '—' }}</td>
+        <td class="mono">{{ s.version or '—' }}</td>
+        <td>{% if s.version_confidence == 'known' %}<span class="badge conf-HIGH">known</span>{% else %}<span class="badge conf-LOW">unknown</span>{% endif %}</td>
+        <td class="muted">{{ s.identification_status }}</td>
+        <td>{% if s.policy %}<span class="badge {{ 'pill-protected' if s.policy=='protected' else 'conf-LOW' }}">{{ s.policy }}</span>{% else %}—{% endif %}</td>
+        <td class="num">{{ s.vulnerabilities|length }}</td>
+      </tr>
+      {% if s.vulnerabilities %}
+      <tr><td colspan="9" style="padding:0 0 8px">
+        <table style="margin:6px 0 0">
+          <tr><th>CVE</th><th>Severity</th><th>CVSS</th><th>Conf.</th><th>Method</th><th>Status</th><th>Note</th></tr>
+          {% for v in s.vulnerabilities %}
+          <tr>
+            <td class="mono"><a href="{{ v.nvd_reference }}" target="_blank" rel="noopener">{{ v.cve_id }}</a></td>
+            <td>{% if v.severity %}<span class="badge sev-{{ v.severity }}">{{ v.severity }}</span>{% else %}<span class="faint">unscored</span>{% endif %}</td>
+            <td class="mono">{{ v.base_score if v.base_score is not none else '—' }}{% if v.cvss_version %} <span class="muted">v{{ v.cvss_version }}</span>{% endif %}</td>
+            <td><span class="badge conf-{{ v.confidence }}">{{ v.confidence }}</span></td>
+            <td class="muted">{{ v.matching_method }}</td>
+            <td class="muted">{{ v.status }}</td>
+            <td>{% if v.probable_false_positive %}<span class="badge sev-MEDIUM">probable FP</span>{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </td></tr>
+      {% endif %}
+      {% if s.state == 'open' %}
+      <tr><td colspan="9"><p class="rec"><strong>Recommendation:</strong> {{ s.recommendation }}</p></td></tr>
+      {% endif %}
+      {% endfor %}
+    </table>
+    {% else %}
+    <div class="empty">No ports recorded for this host.</div>
+    {% endif %}
+  </div>
+</div>
+{% else %}
+<div class="panel"><div class="empty">No hosts were recorded in this scan.</div></div>
+{% endfor %}
+
+<div class="panel flush">
+  <h2>Remediation status &amp; verification</h2>
+  <div class="scroll">
+    {% if report.remediations %}
+    <table>
+      <tr><th>Request</th><th>Port</th><th>State</th><th>Dry run</th>
+          <th>Exposure reduced</th><th>Mgmt intact</th><th>Rollback</th><th>Verification</th></tr>
+      {% for r in report.remediations %}
+      <tr>
+        <td class="mono">{{ r.request_id[:10] }}</td>
+        <td class="mono">{{ r.proto }}/{{ r.port }}</td>
+        <td>{{ r.state }}</td>
+        <td>{{ 'yes' if r.is_dry_run else 'no' }}</td>
+        <td>{{ 'yes' if r.exposure_reduced else ('no' if r.exposure_reduced is not none else '—') }}</td>
+        <td>{{ 'yes' if r.management_channel_intact else ('no' if r.management_channel_intact is not none else '—') }}</td>
+        <td>{{ 'verified' if r.rollback_verified else ('—' if r.rollback_verified is none else 'FAILED') }}</td>
+        <td class="caveat">{{ r.verification_findings | join(' ') or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <div class="empty">No remediation actions against the hosts in this scan.</div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="note">
+  <strong>How to read this report.</strong>
+  <ul>
+    <li>Every CVE is a <em>candidate</em>: a version string resembling a CVE's affected
+        software is not proof of vulnerability or exploitability, and no exploitation was attempted.</li>
+    <li>"Version unknown" / "undetermined" is not "clean" — the service could not be identified.</li>
+    <li>"Exposure reduced" means a port's reachability changed as observed by this scanner;
+        the service kept running and no software was patched.</li>
+    <li>A failed, unreachable, partial or uncorrelated scan is reported as such, never as a clean result.</li>
+  </ul>
+</div>
+
+{% endif %}
+
+{% endblock %}
