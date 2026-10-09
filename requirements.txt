@@ -25,3 +25,5 @@ rich
 
 # Development / testing
 pytest
+
+pydantic-settings
